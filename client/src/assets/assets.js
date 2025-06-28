@@ -145,6 +145,41 @@ export const categories = [
   },
 ];
 
+export const bestSellers = [
+  {
+    name: "Amul Milk 1L",
+    category: "Dairy",
+    price: 60,
+    offerPrice: 52,
+    rating: 4,
+    image: amul_milk_image,
+  },
+  {
+    name: "Basmati Rice 5kg",
+    category: "Grains",
+    price: 420,
+    offerPrice: 360,
+    rating: 5,
+    image: basmati_rice_image,
+  },
+  {
+    name: "Fresh Tomatoes 1kg",
+    category: "Vegetables",
+    price: 40,
+    offerPrice: 30,
+    rating: 3,
+    image: tomato_image,
+  },
+  {
+    name: "Spinach Leaves 250g",
+    category: "Leafy Greens",
+    price: 40,
+    offerPrice: 35,
+    rating: 4,
+    image: spinach_image_1,
+  },
+];
+
 export const footerLinks = [
   {
     title: "Quick Links",

@@ -3,6 +3,7 @@ import Navbar from "./components/navbar";
 import MainBanner from "./components/mainbanner";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("seller");
@@ -15,6 +16,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />}></Route>
         </Routes>
+        <Toaster position="top-center" reverseOrder={false} />
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ const Navbar = () => {
   const { user, setUser } = useAppContext();
   const navigate = useNavigate();
 
+  const { setShowUserLogin } = useAppContext();
+
   const handleLogout = () => {
     setUser(null);
     navigate("/");
@@ -161,15 +163,15 @@ const Navbar = () => {
           </NavLink>
           <div className="w-full border-t border-gray-100 mt-2 pt-3">
             {!user ? (
-              <NavLink
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="block w-full"
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  setShowUserLogin(true);
+                }}
+                className="w-full cursor-pointer px-6 py-3 bg-primary hover:bg-primary-dark transition-all duration-200 text-white font-medium rounded-lg shadow-md"
               >
-                <button className="w-full cursor-pointer px-6 py-3 bg-primary hover:bg-primary-dark transition-all duration-200 text-white font-medium rounded-lg shadow-md">
-                  Login
-                </button>
-              </NavLink>
+                Login
+              </button>
             ) : (
               <button
                 onClick={() => {

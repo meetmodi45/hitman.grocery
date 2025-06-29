@@ -1,15 +1,23 @@
-import React from "react";
+import { React, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets.js";
 import { useAppContext } from "../context/AppContext";
 
 const Navbar = () => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const { user, setUser } = useAppContext();
   const navigate = useNavigate();
 
-  const { setShowUserLogin } = useAppContext();
+  const { setShowUserLogin, searchQuery, setSearchQuery } = useAppContext();
 
+  useEffect(() => {
+    if (
+      searchQuery.length > 0 &&
+      !window.location.pathname.includes("/products")
+    ) {
+      navigate("/products");
+    }
+  }, [searchQuery, navigate]);
   const handleLogout = () => {
     setUser(null);
     navigate("/");
@@ -35,24 +43,29 @@ const Navbar = () => {
           <NavLink
             to="/"
             className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+            onClick={() => setSearchQuery("")}
           >
             Home
           </NavLink>
           <NavLink
             to="/products"
             className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+            onClick={() => setSearchQuery("")}
           >
             All Products
           </NavLink>
           <NavLink
             to="/contact"
             className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+            onClick={() => setSearchQuery("")}
           >
             Contact
           </NavLink>
 
           <div className="hidden lg:flex items-center text-sm gap-2 border-2 border-gray-200 hover:border-primary/50 focus-within:border-primary px-4 py-2 rounded-full bg-gray-50 hover:bg-white transition-all duration-200 shadow-sm">
             <input
+              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchQuery}
               className="py-1 w-full bg-transparent outline-none placeholder-gray-400 text-gray-700 min-w-[180px]"
               type="text"
               placeholder="Search products..."

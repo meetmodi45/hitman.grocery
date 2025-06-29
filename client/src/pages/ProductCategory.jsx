@@ -1,31 +1,24 @@
 import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 
-const AllProducts = () => {
-  const { products, searchQuery, setSearchQuery, navigate } = useAppContext();
+const ProductCategory = () => {
+  const { categoryName } = useParams();
+  const navigate = useNavigate();
+  const { products } = useAppContext();
   const [counts, setCounts] = React.useState({});
+
+  // Filter products by category (case-insensitive)
+  const categoryProducts = products.filter(
+    (product) => product.category.toLowerCase() === categoryName.toLowerCase()
+  );
 
   const handleAdd = (index) => {
     setCounts((prev) => ({ ...prev, [index]: 1 }));
     toast.success("Added to Cart");
   };
-
-  const filteredProducts = products.filter((product) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      String(product.name || "")
-        .toLowerCase()
-        .includes(query) ||
-      String(product.category || "")
-        .toLowerCase()
-        .includes(query) ||
-      String(product.description || "")
-        .toLowerCase()
-        .includes(query)
-    );
-  });
 
   const handleChange = (index, delta) => {
     setCounts((prev) => {
@@ -44,10 +37,13 @@ const AllProducts = () => {
 
   return (
     <div className="mt-16 mb-16 px-4">
-      <p className="text-2xl md:text-3xl font-medium mb-6">All Products</p>
-      {filteredProducts.length > 0 ? (
+      <h1 className="text-2xl md:text-3xl font-medium mb-6 capitalize">
+        {categoryName.replace(/-/g, " ")}
+      </h1>
+
+      {categoryProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center">
-          {filteredProducts.map((product, index) => {
+          {categoryProducts.map((product, index) => {
             const count = counts[index] || 0;
 
             return (
@@ -58,9 +54,7 @@ const AllProducts = () => {
                 <div
                   className="group cursor-pointer flex items-center justify-center px-2"
                   onClick={() => {
-                    setSearchQuery("");
                     navigate(`/product/${product._id}`);
-
                     window.scrollTo(0, 0);
                   }}
                 >
@@ -137,12 +131,12 @@ const AllProducts = () => {
           })}
         </div>
       ) : (
-        <p className="text-2xl md:text-xl font-medium mb-6 text-black/50">
-          No Products Found
+        <p className="text-center text-gray-500">
+          No products found in this category.
         </p>
       )}
     </div>
   );
 };
 
-export default AllProducts;
+export default ProductCategory;

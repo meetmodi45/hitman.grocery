@@ -9,6 +9,8 @@ export const AppContextProvider = ({ children }) => {
   const [isSeller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     setProducts(dummyProducts);
   }, []);
@@ -22,6 +24,8 @@ export const AppContextProvider = ({ children }) => {
     navigate,
     products,
     setProducts,
+    searchQuery,
+    setSearchQuery,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -8,6 +8,8 @@ import Footer from "./components/Footer";
 import { useAppContext } from "./context/AppContext";
 import Login from "./components/Login";
 import AllProducts from "./pages/AllProducts";
+import ProductCategory from "./pages/ProductCategory";
+import ProductDetail from "./pages/ProductDetails";
 
 const App = () => {
   const { showUserLogin } = useAppContext();
@@ -26,6 +28,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route path="/products" element={<AllProducts />} />
+          <Route path="/products/:categoryName" element={<ProductCategory />} />
+          <Route path="/product/:productId" element={<ProductDetail />} />
         </Routes>
         <Toaster position="top-center" reverseOrder={false} />
       </div>

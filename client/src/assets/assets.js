@@ -890,11 +890,29 @@ export const dummyOrders = [
     updatedAt: "2025-03-25T07:18:13.103Z",
   },
   {
-    _id: "67e258798f87e633667863f2",
+    _id: "67e258798f87e633667863f0",
     userId: "67b5880e4d09769c5ca61644",
     items: [
       {
         product: dummyProducts[0],
+        quantity: 1,
+        _id: "67e258798f87e633667863f1",
+      },
+    ],
+    amount: 55,
+    address: dummyAddress[0],
+    status: "Order Placed",
+    paymentType: "Online",
+    isPaid: true,
+    createdAt: "2025-03-25T07:17:46.018Z",
+    updatedAt: "2025-03-25T07:18:13.103Z",
+  },
+  {
+    _id: "67e258798f87e633667863f2",
+    userId: "67b5880e4d09769c5ca61644",
+    items: [
+      {
+        product: dummyProducts[20],
         quantity: 1,
         _id: "67e258798f87e633667863f3",
       },
@@ -902,6 +920,16 @@ export const dummyOrders = [
         product: dummyProducts[1],
         quantity: 1,
         _id: "67e258798f87e633667863f4",
+      },
+      {
+        product: dummyProducts[2],
+        quantity: 1,
+        _id: "67e258798f87e633667863f5",
+      },
+      {
+        product: dummyProducts[3],
+        quantity: 1,
+        _id: "67e258798f87e633667863f6",
       },
     ],
     amount: 43,

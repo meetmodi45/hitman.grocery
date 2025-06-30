@@ -57,11 +57,18 @@ const Navbar = () => {
             All Products
           </NavLink>
           <NavLink
-            to="/contact"
+            to="/faq"
             className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             onClick={() => setSearchQuery("")}
           >
-            Contact
+            FAQs
+          </NavLink>
+          <NavLink
+            to="/seller"
+            className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+            onClick={() => setSearchQuery("")}
+          >
+            Seller login
           </NavLink>
 
           <div className="hidden lg:flex items-center text-sm gap-2 border-2 border-gray-200 hover:border-primary/50 focus-within:border-primary px-4 py-2 rounded-full bg-gray-50 hover:bg-white transition-all duration-200 shadow-sm">
@@ -183,11 +190,18 @@ const Navbar = () => {
             </button>
           )}
           <NavLink
-            to="/contact"
+            to="/faq"
             onClick={() => setOpen(false)}
             className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium"
           >
-            Contact
+            FAQs
+          </NavLink>
+          <NavLink
+            to="/seller"
+            onClick={() => setOpen(false)}
+            className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium"
+          >
+            Seller Login
           </NavLink>
 
           <div className="w-full border-t border-gray-100 mt-2 pt-3">

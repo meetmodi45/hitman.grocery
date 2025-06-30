@@ -12,6 +12,8 @@ import ProductCategory from "./pages/ProductCategory";
 import ProductDetail from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import AddAddressModal from "./components/AddAddressModal";
+import FAQ from "./pages/FAQ";
+import Seller from "./pages/Seller";
 
 const App = () => {
   const { showUserLogin, showAddressModal } = useAppContext();
@@ -35,6 +37,8 @@ const App = () => {
           <Route path="/products/:categoryName" element={<ProductCategory />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/seller" element={<Seller />} />
         </Routes>
         <Toaster position="top-center" reverseOrder={false} />
       </div>

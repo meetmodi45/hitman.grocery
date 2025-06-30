@@ -21,7 +21,7 @@ const Login = () => {
     >
       <form
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-5 transition-transform animate-fadeIn"
+        className="w-150 max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-5 transition-transform animate-fadeIn"
       >
         <h2 className="text-3xl font-semibold text-center text-gray-800">
           <span className="text-primary">User</span>{" "}

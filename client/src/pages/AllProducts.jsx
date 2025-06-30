@@ -4,11 +4,25 @@ import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 
 const AllProducts = () => {
-  const { products, searchQuery, setSearchQuery, navigate } = useAppContext();
-  const [counts, setCounts] = React.useState({});
+  const {
+    products,
+    searchQuery,
+    setSearchQuery,
+    navigate,
+    cartItems,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+  } = useAppContext();
 
-  const handleAdd = (index) => {
-    setCounts((prev) => ({ ...prev, [index]: 1 }));
+  // Function to get the current quantity of a product in cart
+  const getCartQuantity = (productId) => {
+    const cartItem = cartItems.find((item) => item._id === productId);
+    return cartItem ? cartItem.quantity : 0;
+  };
+
+  const handleAdd = (productId) => {
+    addToCart(productId);
     toast.success("Added to Cart");
   };
 
@@ -27,28 +41,36 @@ const AllProducts = () => {
     );
   });
 
-  const handleChange = (index, delta) => {
-    setCounts((prev) => {
-      const newCount = Math.max((prev[index] || 0) + delta, 0);
-      const action = delta > 0 ? "Added" : "Removed";
-      if (newCount === 0 && delta < 0) {
-        toast("Removed from Cart", {
-          icon: "❌",
-        });
-      } else if (delta !== 0) {
-        toast(`${action} to Cart`);
+  const handleChange = (productId, delta) => {
+    const currentQuantity = getCartQuantity(productId);
+    const newQuantity = currentQuantity + delta;
+
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+      toast("Removed from Cart", {
+        icon: "❌",
+      });
+    } else {
+      if (currentQuantity === 0) {
+        // If item is not in cart, add it first
+        addToCart(productId);
+      } else {
+        // Update existing item quantity
+        updateQuantity(productId, newQuantity);
       }
-      return { ...prev, [index]: newCount };
-    });
+
+      const action = delta > 0 ? "Added" : "Removed";
+      toast(`${action} to Cart`);
+    }
   };
 
   return (
-    <div className="mt-16 mb-16 px-4">
+    <div className="mt-16 mb-16 px-4 pt-16">
       <p className="text-2xl md:text-3xl font-medium mb-6">All Products</p>
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center">
           {filteredProducts.map((product, index) => {
-            const count = counts[index] || 0;
+            const count = getCartQuantity(product._id);
 
             return (
               <div
@@ -60,7 +82,6 @@ const AllProducts = () => {
                   onClick={() => {
                     setSearchQuery("");
                     navigate(`/product/${product._id}`);
-
                     window.scrollTo(0, 0);
                   }}
                 >
@@ -102,7 +123,7 @@ const AllProducts = () => {
                     <div className="text-primary">
                       {count === 0 ? (
                         <button
-                          onClick={() => handleAdd(index)}
+                          onClick={() => handleAdd(product._id)}
                           className="flex items-center justify-center gap-2 px-4 py-2 border border-green-400 text-green-500 bg-green-50 rounded-md shadow-sm hover:bg-green-200 transition duration-200"
                         >
                           <img
@@ -115,14 +136,14 @@ const AllProducts = () => {
                       ) : (
                         <div className="flex items-center justify-center gap-3 px-4 py-2 h-[40px] border border-green-400 text-green-500 bg-green-100 rounded-md shadow-sm transition duration-200">
                           <button
-                            onClick={() => handleChange(index, -1)}
+                            onClick={() => handleChange(product._id, -1)}
                             className="text-base font-medium hover:text-green-600"
                           >
                             −
                           </button>
                           <span className="text-base font-medium">{count}</span>
                           <button
-                            onClick={() => handleChange(index, 1)}
+                            onClick={() => handleChange(product._id, 1)}
                             className="text-base font-medium hover:text-green-600"
                           >
                             +

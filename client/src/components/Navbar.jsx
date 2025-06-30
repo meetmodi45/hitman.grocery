@@ -7,6 +7,8 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, setUser } = useAppContext();
   const navigate = useNavigate();
+  const { cartItems } = useAppContext();
+  const totalCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const { setShowUserLogin, searchQuery, setSearchQuery } = useAppContext();
 
@@ -29,7 +31,7 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="flex items-center justify-between px-4 md:px-8 lg:px-16 xl:px-20 py-3 border-b border-gray-200 bg-white shadow-sm relative transition-all duration-300">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-16 xl:px-20 py-3 border-b border-gray-200 bg-white shadow-sm transition-all duration-300">
         <NavLink to="#" className="flex-shrink-0">
           <img
             className="h-12 w-auto object-contain hover:scale-105 transition-transform duration-200"
@@ -86,7 +88,7 @@ const Navbar = () => {
                   className="w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity duration-200"
                 />
                 <button className="absolute -top-1 -right-1 text-xs text-white bg-primary hover:bg-primary-dark w-5 h-5 rounded-full flex items-center justify-center font-semibold shadow-lg transition-all duration-200 hover:scale-110">
-                  3
+                  {totalCount}
                 </button>
               </div>
             </NavLink>
@@ -126,14 +128,27 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Toggle */}
-        <button
-          onClick={() => setOpen(!open)}
-          aria-label="Menu"
-          className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-        >
-          <img src={assets.menu_icon} alt="menuIcon" className="w-6 h-6" />
-        </button>
-
+        <div className="flex items-center gap-3 sm:hidden">
+          <NavLink to="/cart">
+            <div className="relative p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+              <img
+                src={assets.nav_cart_icon}
+                alt="cartIcon"
+                className="w-6 h-6 opacity-70"
+              />
+              <span className="absolute -top-1 -right-1 text-xs text-white bg-primary hover:bg-primary-dark w-5 h-5 rounded-full flex items-center justify-center font-semibold shadow-md transition-all duration-200">
+                {totalCount}
+              </span>
+            </div>
+          </NavLink>
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+            className="sm:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+          >
+            <img src={assets.menu_icon} alt="menuIcon" className="w-6 h-6" />
+          </button>
+        </div>
         {/* Mobile Menu */}
         <div
           className={`${
@@ -174,6 +189,7 @@ const Navbar = () => {
           >
             Contact
           </NavLink>
+
           <div className="w-full border-t border-gray-100 mt-2 pt-3">
             {!user ? (
               <button

@@ -34,7 +34,7 @@ const ProductDetail = () => {
   if (!product) return <div className="text-center py-20">Loading...</div>;
 
   return (
-    <div className="max-w-6xl w-full px-6 mx-auto mb-8">
+    <div className="max-w-6xl w-full px-6 mx-auto mb-8 pt-20">
       {/* Breadcrumbs */}
       <p className="py-4">
         <span

@@ -147,6 +147,7 @@ export const categories = [
 
 export const bestSellers = [
   {
+    _id: "ek56j67k",
     name: "Amul Milk 1L",
     category: "Dairy",
     price: 60,
@@ -155,6 +156,7 @@ export const bestSellers = [
     image: amul_milk_image,
   },
   {
+    _id: "ek66j67k",
     name: "Basmati Rice 5kg",
     category: "Grains",
     price: 420,
@@ -163,6 +165,7 @@ export const bestSellers = [
     image: basmati_rice_image,
   },
   {
+    _id: "gd47g34h",
     name: "Fresh Tomatoes 1kg",
     category: "Vegetables",
     price: 40,
@@ -171,6 +174,7 @@ export const bestSellers = [
     image: tomato_image,
   },
   {
+    _id: "gd49g56h",
     name: "Spinach Leaves 250g",
     category: "Leafy Greens",
     price: 40,

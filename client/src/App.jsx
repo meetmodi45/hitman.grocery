@@ -1,5 +1,5 @@
 import react from "react";
-import Navbar from "./components/navbar";
+import Navbar from "./components/Navbar";
 import MainBanner from "./components/mainbanner";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
@@ -10,9 +10,11 @@ import Login from "./components/Login";
 import AllProducts from "./pages/AllProducts";
 import ProductCategory from "./pages/ProductCategory";
 import ProductDetail from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+import AddAddressModal from "./components/AddAddressModal";
 
 const App = () => {
-  const { showUserLogin } = useAppContext();
+  const { showUserLogin, showAddressModal } = useAppContext();
   const isSellerPath = useLocation().pathname.includes("seller");
   return (
     <div>
@@ -25,11 +27,14 @@ const App = () => {
         }`}
       >
         {showUserLogin ? <Login /> : null}
+        {showAddressModal && <AddAddressModal />}
+
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route path="/products" element={<AllProducts />} />
           <Route path="/products/:categoryName" element={<ProductCategory />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
         <Toaster position="top-center" reverseOrder={false} />
       </div>

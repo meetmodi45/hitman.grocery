@@ -14,7 +14,7 @@ import Cart from "./pages/Cart";
 import AddAddressModal from "./components/AddAddressModal";
 import FAQ from "./pages/FAQ";
 import Seller from "./pages/Seller";
-
+import SellerLogin from "./pages/SellerLogin";
 const App = () => {
   const { showUserLogin, showAddressModal } = useAppContext();
   const isSellerPath = useLocation().pathname.includes("seller");
@@ -38,6 +38,7 @@ const App = () => {
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/seller-login" element={<SellerLogin />} />
           <Route path="/seller" element={<Seller />} />
         </Routes>
         <Toaster

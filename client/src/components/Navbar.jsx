@@ -64,9 +64,11 @@ const Navbar = () => {
             FAQs
           </NavLink>
           <NavLink
-            to="/seller"
+            to="/seller-login"
             className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
-            onClick={() => setSearchQuery("")}
+            onClick={() => {
+              setSearchQuery("");
+            }}
           >
             Seller login
           </NavLink>
@@ -197,7 +199,7 @@ const Navbar = () => {
             FAQs
           </NavLink>
           <NavLink
-            to="/seller"
+            to="/seller-login"
             onClick={() => setOpen(false)}
             className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium"
           >

@@ -6,7 +6,7 @@ import { dummyProducts } from "../assets/assets";
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(false);
-  const [isSeller, setIsSeller] = useState(false);
+  const [isSeller, setIsSeller] = useState(true);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");

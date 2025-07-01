@@ -40,9 +40,15 @@ const App = () => {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/seller" element={<Seller />} />
         </Routes>
-        <Toaster position="top-center" reverseOrder={false} />
+        <Toaster
+          position="top-center"
+          toastOptions={{ duration: 1000 }}
+          reverseOrder={false}
+        />
       </div>
-      <Footer />
+      {isSellerPath
+        ? null
+        : <Footer /> || <Toaster position="top-center" reverseOrder={false} />}
     </div>
   );
 };

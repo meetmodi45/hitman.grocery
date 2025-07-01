@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import AddItems from "../components/Seller/AddItems";
 import ManageStock from "../components/Seller/ManageStock";
 import Orders from "../components/Seller/Orders";
+import { HiMenu } from "react-icons/hi";
 
 const Seller = () => {
   const [activeTab, setActiveTab] = useState("add");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
     {
@@ -68,9 +70,13 @@ const Seller = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <div className="w-64 border-r p-4 bg-white">
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar - visible on md+ and toggleable on mobile */}
+      <div
+        className={`fixed md:static top-0 left-0 z-30 bg-white border-r w-64 h-full p-4 transform transition-transform duration-200 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
+      >
         <img
           className="w-40 mb-6"
           src="/hitman.grocery.logo.png"
@@ -80,7 +86,10 @@ const Seller = () => {
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                setActiveTab(item.id);
+                setSidebarOpen(false); // close on mobile selection
+              }}
               className={`flex items-center gap-3 w-full text-left px-4 py-2 rounded transition-all ${
                 activeTab === item.id
                   ? "bg-primary/10 text-primary-dull font-semibold border-r-4 border-primary"
@@ -94,20 +103,38 @@ const Seller = () => {
         </div>
       </div>
 
+      {/* Overlay for mobile menu */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 z-20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 bg-gray-50 overflow-auto flex flex-col">
-        {/* Header inside content */}
-        <div className="flex justify-between items-center px-6 py-4 bg-white border-b shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-800">
-            Welcome to Admin Dashboard
+      <div className="flex-1 flex flex-col overflow-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center px-4 sm:px-6 py-4 bg-white border-b shadow-sm">
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-gray-700"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+          >
+            <HiMenu size={24} />
+          </button>
+
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-800">
+            <span className="block sm:hidden">Admin Dashboard</span>
+            <span className="hidden sm:block">Welcome to Admin Dashboard</span>
           </h1>
+
           <button className="px-4 py-1.5 bg-primary hover:bg-primary-dull text-white rounded-full text-sm font-medium transition">
             Logout
           </button>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-6">{componentsMap[activeTab] || <AddItems />}</div>
+        {/* Component Content */}
+        <div className="p-4 sm:p-6">{componentsMap[activeTab]}</div>
       </div>
     </div>
   );

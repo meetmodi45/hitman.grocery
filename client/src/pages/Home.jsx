@@ -7,7 +7,7 @@ import Subscribe from "../components/Subscribe";
 
 const Home = () => {
   return (
-    <div className="mt-12 pt-20">
+    <div className="mt-6 sm:mt-12 pt-20">
       <MainBanner />
       <Categories />
       <BestSellers />

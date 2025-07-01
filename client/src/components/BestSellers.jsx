@@ -32,7 +32,7 @@ const BestSellers = () => {
   };
 
   return (
-    <div className="mt-16 mb-16">
+    <div className="mt-16 mb-16 px-2 pt-16 md:px-0 md:pt-0">
       <p className="text-2xl md:text-3xl font-medium mb-6">Best Sellers</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {bestSellers.map((product, index) => {
@@ -41,11 +41,11 @@ const BestSellers = () => {
           return (
             <div
               key={product._id}
-              className="bg-gradient-to-br from-blue-50 via-white to-green-50 border border-gray-200 rounded-xl p-4 w-full max-w-[220px] sm:max-w-[240px] lg:max-w-[260px] shadow-sm hover:shadow-md transition"
+              className="w-full bg-gradient-to-br from-blue-50 via-white to-green-50 border border-gray-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md transition"
             >
-              <div className="group cursor-pointer flex items-center justify-center px-2">
+              <div className="group cursor-pointer flex items-center justify-center mb-2">
                 <img
-                  className="group-hover:scale-105 transition max-w-26 md:max-w-36"
+                  className="group-hover:scale-105 transition max-w-[150px] sm:max-w-[120px] md:max-w-[140px]"
                   src={product.image}
                   alt={product.name}
                   onClick={() => {

@@ -32,7 +32,7 @@ const Navbar = () => {
   return (
     <div>
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-16 xl:px-20 py-3 border-b border-gray-200 bg-white shadow-sm transition-all duration-300">
-        <NavLink to="#" className="flex-shrink-0">
+        <NavLink to="/" className="flex-shrink-0">
           <img
             className="h-12 w-auto object-contain hover:scale-105 transition-transform duration-200"
             src="/hitman.grocery.logo.png"
@@ -137,7 +137,25 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex items-center gap-3 sm:hidden">
+        <div className="flex items-center gap-2 sm:hidden">
+          {/* Mobile Search Icon - Triggers search input visibility */}
+          <div className="relative">
+            <div className="flex items-center border border-gray-300 rounded-full px-3 py-1 bg-gray-50 w-32">
+              <input
+                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery}
+                className="py-1 w-20 bg-transparent outline-none placeholder-gray-400 text-gray-700 ml-1 text-lg"
+                type="text"
+                placeholder="Search..."
+              />
+              <img
+                src={assets.search_icon}
+                alt="searchIcon"
+                className="w-4 h-4 opacity-60 "
+              />
+            </div>
+          </div>
+
           <NavLink to="/cart">
             <div className="relative p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
               <img

@@ -12,7 +12,7 @@ const Cart = () => {
     selectedAddress,
     savedAddresses,
     setSelectedAddress,
-    setShowAddressModal, // use this to trigger modal component
+    setShowAddressModal,
   } = useAppContext();
 
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
@@ -29,19 +29,20 @@ const Cart = () => {
   const finalAmount = totalPrice + gst;
 
   return (
-    <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto pt-24">
+    <div className="flex flex-col md:flex-row py-4 md:py-16 max-w-6xl w-full px-4 md:px-6 mx-auto pt-20 md:pt-24">
       {/* Left - Cart Items */}
       <div className="flex-1 max-w-4xl">
-        <h1 className="text-3xl font-semibold mb-6 text-gray-800">
+        <h1 className="text-2xl md:text-3xl font-semibold mb-4 md:mb-6 text-gray-800">
           Shopping Cart{" "}
-          <span className="text-sm text-green-600 font-medium">
+          <span className="text-xs md:text-sm text-green-600 font-medium">
             {cartItems.length} Items
           </span>
         </h1>
 
         {cartItems.length > 0 ? (
           <>
-            <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-semibold pb-3">
+            {/* Hide column headers on mobile */}
+            <div className="hidden md:grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-semibold pb-3">
               <p className="text-left">Product Details</p>
               <p className="text-center">Subtotal</p>
               <p className="text-center">Action</p>
@@ -50,26 +51,26 @@ const Cart = () => {
             {cartItems.map((item, index) => (
               <div
                 key={index}
-                className="grid grid-cols-[2fr_1fr_1fr] items-center text-sm md:text-base font-medium text-gray-700 pt-3 border-b border-gray-200 pb-3"
+                className="flex flex-col md:grid md:grid-cols-[2fr_1fr_1fr] items-start md:items-center text-sm md:text-base font-medium text-gray-700 pt-3 border-b border-gray-200 pb-3 gap-2 md:gap-0"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-24 h-24 flex items-center justify-center border border-gray-300 rounded-md overflow-hidden">
+                <div className="flex items-center gap-4 w-full">
+                  <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center border border-gray-300 rounded-md overflow-hidden">
                     <img
                       className="max-w-full h-full object-cover"
                       src={item.image}
                       alt={item.name}
                     />
                   </div>
-                  <div>
-                    <p className="font-semibold mb-4">{item.name}</p>
+                  <div className="flex-1">
+                    <p className="font-semibold mb-2 md:mb-4">{item.name}</p>
                     <div className="flex items-center gap-1">
-                      <p>Qty:</p>
+                      <p className="text-sm">Qty:</p>
                       <select
                         value={item.quantity}
                         onChange={(e) =>
                           updateQuantity(item._id, Number(e.target.value))
                         }
-                        className="outline-none border border-gray-300 px-2 py-0.5 rounded text-sm"
+                        className="outline-none border border-gray-300 px-2 py-0.5 rounded text-xs md:text-sm"
                       >
                         {[...Array(9)].map((_, i) => (
                           <option key={i} value={i + 1}>
@@ -81,12 +82,40 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <p className="text-center font-semibold text-primary">
+                {/* Mobile: Show price and action inline */}
+                <div className="flex justify-between items-center w-full md:hidden pl-20">
+                  <p className="font-semibold text-primary">
+                    ₹{Number(item.quantity) * Number(item.price)}
+                  </p>
+                  <button
+                    className="cursor-pointer"
+                    onClick={() => removeItem(item._id)}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="m12.5 7.5-5 5m0-5 5 5m5.833-2.5a8.333 8.333 0 1 1-16.667 0 8.333 8.333 0 0 1 16.667 0"
+                        stroke="#EF4444"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Desktop: Show price and action in columns */}
+                <p className="hidden md:block text-center font-semibold text-primary">
                   ₹{Number(item.quantity) * Number(item.price)}
                 </p>
 
                 <button
-                  className="cursor-pointer mx-auto"
+                  className="hidden md:block cursor-pointer mx-auto"
                   onClick={() => removeItem(item._id)}
                 >
                   <svg
@@ -113,7 +142,7 @@ const Cart = () => {
         )}
 
         <button
-          className="group flex items-center mt-8 gap-2 text-primary-dull font-medium hover:underline transition"
+          className="group flex items-center mt-6 md:mt-8 gap-2 text-primary-dull font-medium hover:underline transition text-sm md:text-base"
           onClick={() => navigate("/products")}
         >
           <svg
@@ -136,27 +165,29 @@ const Cart = () => {
       </div>
 
       {/* Right - Summary */}
-      <div className="max-w-[360px] w-full h-full bg-white p-5 border border-gray-200 rounded-md shadow-md max-md:mt-12">
-        <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
-        <hr className="border-gray-300 my-5" />
+      <div className="max-w-full md:max-w-[360px] w-full h-full bg-white p-4 md:p-5 border border-gray-200 rounded-md shadow-md mt-8 md:mt-0 md:ml-8">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+          Order Summary
+        </h2>
+        <hr className="border-gray-300 my-4 md:my-5" />
 
-        <div className="mb-6">
-          <p className="text-sm font-medium uppercase text-gray-600">
+        <div className="mb-4 md:mb-6">
+          <p className="text-xs md:text-sm font-medium uppercase text-gray-600">
             Delivery Address
           </p>
-          <div className="relative flex justify-between items-start mt-2">
-            <p className="text-gray-500 text-sm w-[70%]">
+          <div className="relative flex justify-between items-start mt-1 md:mt-2">
+            <p className="text-gray-500 text-xs md:text-sm w-[70%]">
               {selectedAddress || "No address found"}
             </p>
             <button
               onClick={() => setShowAddressDropdown(!showAddressDropdown)}
-              className="text-green-600 hover:underline text-sm"
+              className="text-green-600 hover:underline text-xs md:text-sm"
             >
               {selectedAddress ? "Change" : "Add"}
             </button>
 
             {showAddressDropdown && (
-              <div className="absolute top-12 left-0 py-1 bg-white border border-gray-300 text-sm w-full shadow-md z-50">
+              <div className="absolute top-8 md:top-12 left-0 py-1 bg-white border border-gray-300 text-xs md:text-sm w-full shadow-md z-50">
                 {savedAddresses.map((addr, i) => (
                   <p
                     key={i}
@@ -182,10 +213,10 @@ const Cart = () => {
             )}
           </div>
 
-          <p className="text-sm font-medium uppercase mt-6 text-gray-600">
+          <p className="text-xs md:text-sm font-medium uppercase mt-4 md:mt-6 text-gray-600">
             Payment Method
           </p>
-          <select className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 text-sm rounded-md outline-none">
+          <select className="w-full border border-gray-300 bg-white px-3 py-2 mt-1 md:mt-2 text-xs md:text-sm rounded-md outline-none">
             <option value="COD">Cash On Delivery</option>
             <option value="Online">Online Payment</option>
           </select>
@@ -193,7 +224,7 @@ const Cart = () => {
 
         <hr className="border-gray-300" />
 
-        <div className="text-gray-600 mt-4 space-y-2 text-sm">
+        <div className="text-gray-600 mt-3 md:mt-4 space-y-1 md:space-y-2 text-xs md:text-sm">
           <p className="flex justify-between">
             <span>Price</span>
             <span>₹{totalPrice}</span>
@@ -206,20 +237,20 @@ const Cart = () => {
             <span>GST Charges</span>
             <span>₹{gst}</span>
           </p>
-          <p className="flex justify-between text-base font-semibold mt-3 text-gray-800">
+          <p className="flex justify-between text-sm md:text-base font-semibold mt-2 md:mt-3 text-gray-800">
             <span>Total Amount:</span>
             <span>₹{finalAmount}</span>
           </p>
         </div>
 
         {user ? (
-          <button className="w-full py-3 mt-6 bg-primary-dull hover:bg-primary hover:shadow-lg transform hover:scale-105 text-white font-semibold rounded-md transition">
+          <button className="w-full py-2 md:py-3 mt-4 md:mt-6 bg-primary-dull hover:bg-primary hover:shadow-lg transform hover:scale-105 text-white font-semibold rounded-md transition text-sm md:text-base">
             Place Order
           </button>
         ) : (
           <button
             onClick={() => setShowUserLogin(true)}
-            className="w-full py-3 mt-6 bg-primary-dull hover:bg-primary hover:shadow-lg transform hover:scale-105 text-white font-semibold rounded-md transition"
+            className="w-full py-2 md:py-3 mt-4 md:mt-6 bg-primary-dull hover:bg-primary hover:shadow-lg transform hover:scale-105 text-white font-semibold rounded-md transition text-sm md:text-base"
           >
             Login to Place Order
           </button>

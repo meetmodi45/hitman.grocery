@@ -1,18 +1,56 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import axios from "../utils/axiosInstance";
+import toast from "react-hot-toast";
 
 const Login = () => {
-  const { setShowUserLogin } = useAppContext();
-  const [state, setState] = React.useState("login");
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const { setShowUserLogin, setUser } = useAppContext();
+  const [state, setState] = useState("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Disable scroll when modal opens
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => (document.body.style.overflow = "");
   }, []);
+
+  // 🧠 Handle submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (state === "register") {
+        const res = await axios.post("/users/register", {
+          name,
+          email,
+          password,
+        });
+        toast.success(res.data.message);
+        setUser(true);
+      } else {
+        const res = await axios.post("/users/login", { email, password });
+        toast.success(res.data.message);
+        setUser(true);
+      }
+      setShowUserLogin(false);
+      setName("");
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.get("/users/logout");
+      toast.success("Logged out successfully");
+    } catch (err) {
+      toast.error("Logout failed");
+    }
+  };
 
   return (
     <div
@@ -21,6 +59,7 @@ const Login = () => {
     >
       <form
         onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
         className="w-150 max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-5 transition-transform animate-fadeIn"
       >
         <h2 className="text-3xl font-semibold text-center text-gray-800">

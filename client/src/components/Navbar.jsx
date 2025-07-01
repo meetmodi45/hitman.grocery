@@ -2,7 +2,8 @@ import { React, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets.js";
 import { useAppContext } from "../context/AppContext";
-
+import axios from "axios";
+import toast from "react-hot-toast";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, setUser } = useAppContext();
@@ -20,9 +21,20 @@ const Navbar = () => {
       navigate("/products");
     }
   }, [searchQuery, navigate]);
-  const handleLogout = () => {
-    setUser(null);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get("/users/logout", {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setUser(false);
+        navigate("/");
+        toast.success("Logged out successfully");
+      }
+    } catch (err) {
+      console.error("Logout failed", err);
+      toast.error("Logout failed. Please try again.");
+    }
   };
 
   const goToOrders = () => {

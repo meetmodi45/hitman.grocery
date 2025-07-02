@@ -12,7 +12,7 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/logout", logoutUser);
 
-router.get("/protectedUserroute", authUser, (req, res) => {
+router.get("/protectedUserRoute", authUser, (req, res) => {
   res.status(200).json(req.user);
 });
 

@@ -28,3 +28,14 @@ export const loginSeller = async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 };
+
+export const logoutSeller = (req, res) => {
+  res.clearCookie("sellerToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+};

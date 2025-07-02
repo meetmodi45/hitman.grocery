@@ -2,7 +2,7 @@ import { React, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets.js";
 import { useAppContext } from "../context/AppContext";
-import axios from "axios";
+import axios from "../utils/axiosInstance";
 import toast from "react-hot-toast";
 const Navbar = () => {
   const [open, setOpen] = useState(false);

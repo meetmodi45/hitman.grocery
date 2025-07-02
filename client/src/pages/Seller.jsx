@@ -3,11 +3,16 @@ import AddItems from "../components/Seller/AddItems";
 import ManageStock from "../components/Seller/ManageStock";
 import Orders from "../components/Seller/Orders";
 import { HiMenu } from "react-icons/hi";
+import axios from "../utils/axiosInstance";
+import toast from "react-hot-toast";
+import { useAppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const Seller = () => {
   const [activeTab, setActiveTab] = useState("add");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const { isSeller, setIsSeller } = useAppContext();
+  const navigate = useNavigate();
   const menuItems = [
     {
       id: "add",
@@ -69,6 +74,22 @@ const Seller = () => {
     orders: <Orders />,
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get("/seller/logout", {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setIsSeller(false);
+        navigate("/");
+        toast.success("Logged out successfully");
+      }
+    } catch (err) {
+      console.error("Logout failed", err);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar - visible on md+ and toggleable on mobile */}
@@ -128,7 +149,10 @@ const Seller = () => {
             <span className="hidden sm:block">Welcome to Admin Dashboard</span>
           </h1>
 
-          <button className="px-4 py-1.5 bg-primary hover:bg-primary-dull text-white rounded-full text-sm font-medium transition">
+          <button
+            className="px-4 py-1.5 bg-primary hover:bg-primary-dull text-white rounded-full text-sm font-medium transition"
+            onClick={handleLogout}
+          >
             Logout
           </button>
         </div>

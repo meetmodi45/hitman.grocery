@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import axios from "../utils/axiosInstance";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 
 const AllProducts = () => {
   const {
-    products,
     searchQuery,
     setSearchQuery,
     navigate,
@@ -15,7 +15,23 @@ const AllProducts = () => {
     removeFromCart,
   } = useAppContext();
 
-  // Function to get the current quantity of a product in cart
+  const [products, setProducts] = useState([]);
+
+  // Fetch products from backend when component mounts
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("/products");
+        setProducts(res.data.products);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        toast.error("Failed to load products");
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const getCartQuantity = (productId) => {
     const cartItem = cartItems.find((item) => item._id === productId);
     return cartItem ? cartItem.quantity : 0;
@@ -26,8 +42,10 @@ const AllProducts = () => {
     toast.success("Added to Cart");
   };
 
-  const filteredProducts = products.filter((product) => {
-    const query = searchQuery.toLowerCase();
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  const filteredProducts = safeProducts.filter((product) => {
+    const query = (searchQuery || "").toLowerCase();
     return (
       String(product.name || "")
         .toLowerCase()
@@ -52,10 +70,8 @@ const AllProducts = () => {
       });
     } else {
       if (currentQuantity === 0) {
-        // If item is not in cart, add it first
         addToCart(productId);
       } else {
-        // Update existing item quantity
         updateQuantity(productId, newQuantity);
       }
 
@@ -69,7 +85,7 @@ const AllProducts = () => {
       <p className="text-2xl md:text-3xl font-medium mb-6">All Products</p>
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center">
-          {filteredProducts.map((product, index) => {
+          {filteredProducts.map((product) => {
             const count = getCartQuantity(product._id);
 
             return (

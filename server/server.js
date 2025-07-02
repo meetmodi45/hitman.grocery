@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import "dotenv/config";
 import userRoutes from "./routes/userRoutes.js";
 import sellerRoutes from "./routes/sellerRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -26,6 +27,10 @@ app.use("/api/users", userRoutes);
 // Route for seller
 app.use("/api/seller", sellerRoutes);
 // Start server after DB is connected
+
+// Route for products
+app.use("/api/products", productRoutes);
+
 const startServer = async () => {
   await connectDB();
 

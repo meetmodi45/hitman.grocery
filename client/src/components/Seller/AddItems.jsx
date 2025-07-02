@@ -1,35 +1,95 @@
-import React from "react";
+import React, { useState } from "react";
 import { categories } from "../../assets/assets";
 
 const AddItems = () => {
+  const [images, setImages] = useState([]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [price, setPrice] = useState("");
+  const [offerPrice, setOfferPrice] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (images.length === 0) {
+      alert("Please upload at least one product image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("price", price);
+    formData.append("offerPrice", offerPrice);
+
+    images.forEach((image) => {
+      formData.append("images", image); // Match this with multer field name
+    });
+
+    try {
+      const res = await fetch("http://localhost:4000/api/seller/add-product", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Product added successfully!");
+        // Clear form
+        setName("");
+        setDescription("");
+        setCategory("");
+        setPrice("");
+        setOfferPrice("");
+        setImages([]);
+      } else {
+        throw new Error(data.error || "Something went wrong");
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Failed to upload product.");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImages((prev) => [...prev, file]);
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 md:p-10 bg-white min-h-full">
       <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-primary-dull">
         Add New Product
       </h2>
 
-      <form className="space-y-6 max-w-3xl w-full">
+      <form className="space-y-6 max-w-3xl w-full" onSubmit={handleSubmit}>
         {/* Product Image Upload */}
         <div>
           <p className="text-base font-medium text-gray-800">Product Image</p>
           <div className="flex flex-wrap items-center gap-3 mt-2">
-            {Array(4)
-              .fill("")
-              .map((_, index) => (
-                <label key={index} htmlFor={`image${index}`}>
-                  <input
-                    accept="image/*"
-                    type="file"
-                    id={`image${index}`}
-                    hidden
-                  />
-                  <img
-                    className="w-20 sm:w-24 cursor-pointer border border-dashed border-gray-300 rounded"
-                    src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/e-commerce/uploadArea.png"
-                    alt="uploadArea"
-                  />
-                </label>
-              ))}
+            {[...Array(4)].map((_, index) => (
+              <label key={index} htmlFor={`image${index}`}>
+                <input
+                  accept="image/*"
+                  type="file"
+                  id={`image${index}`}
+                  hidden
+                  onChange={handleImageChange}
+                />
+                <img
+                  className="w-20 sm:w-24 cursor-pointer border border-dashed border-gray-300 rounded object-cover"
+                  src={
+                    images[index]
+                      ? URL.createObjectURL(images[index])
+                      : "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/e-commerce/uploadArea.png"
+                  }
+                  alt="uploadArea"
+                />
+              </label>
+            ))}
           </div>
         </div>
 
@@ -46,6 +106,8 @@ const AddItems = () => {
             type="text"
             placeholder="Enter product name"
             className="outline-none py-2 px-3 rounded border border-gray-300 w-full"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
         </div>
@@ -63,6 +125,8 @@ const AddItems = () => {
             rows={4}
             placeholder="Write a short description..."
             className="outline-none py-2 px-3 rounded border border-gray-300 resize-none w-full"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
@@ -77,6 +141,8 @@ const AddItems = () => {
           <select
             id="category"
             className="outline-none py-2 px-3 rounded border border-gray-300 w-full"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             required
           >
             <option value="">Select Category</option>
@@ -88,7 +154,7 @@ const AddItems = () => {
           </select>
         </div>
 
-        {/* Prices (Grid layout for responsive) */}
+        {/* Prices */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <label
@@ -102,6 +168,8 @@ const AddItems = () => {
               type="number"
               placeholder="0"
               className="outline-none py-2 px-3 rounded border border-gray-300 w-full"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
               required
             />
           </div>
@@ -117,6 +185,8 @@ const AddItems = () => {
               type="number"
               placeholder="0"
               className="outline-none py-2 px-3 rounded border border-gray-300 w-full"
+              value={offerPrice}
+              onChange={(e) => setOfferPrice(e.target.value)}
               required
             />
           </div>

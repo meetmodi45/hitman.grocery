@@ -17,7 +17,6 @@ const AllProducts = () => {
 
   const [products, setProducts] = useState([]);
 
-  // Fetch products from backend when component mounts
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -65,9 +64,7 @@ const AllProducts = () => {
 
     if (newQuantity <= 0) {
       removeFromCart(productId);
-      toast("Removed from Cart", {
-        icon: "❌",
-      });
+      toast("Removed from Cart", { icon: "❌" });
     } else {
       if (currentQuantity === 0) {
         addToCart(productId);
@@ -102,7 +99,9 @@ const AllProducts = () => {
                   }}
                 >
                   <img
-                    className="group-hover:scale-105 transition max-w-[200px] sm:max-w-[120px] md:max-w-[140px]"
+                    className={`group-hover:scale-105 transition max-w-[200px] sm:max-w-[120px] md:max-w-[140px] ${
+                      !product.inStock ? "grayscale opacity-60" : ""
+                    }`}
                     src={product.image[0]}
                     alt={product.name}
                   />
@@ -137,34 +136,42 @@ const AllProducts = () => {
                       </span>
                     </p>
                     <div className="text-primary">
-                      {count === 0 ? (
-                        <button
-                          onClick={() => handleAdd(product._id)}
-                          className="flex items-center justify-center gap-2 px-4 py-2 border border-green-400 text-green-500 bg-green-50 rounded-md shadow-sm hover:bg-green-200 transition duration-200"
-                        >
-                          <img
-                            src={assets.cart_icon}
-                            alt="cart"
-                            className="w-4 h-4"
-                          />
-                          <span className="font-medium">Add</span>
-                        </button>
+                      {product.inStock ? (
+                        count === 0 ? (
+                          <button
+                            onClick={() => handleAdd(product._id)}
+                            className="flex items-center justify-center gap-2 px-4 py-2 border border-green-400 text-green-500 bg-green-50 rounded-md shadow-sm hover:bg-green-200 transition duration-200"
+                          >
+                            <img
+                              src={assets.cart_icon}
+                              alt="cart"
+                              className="w-4 h-4"
+                            />
+                            <span className="font-medium">Add</span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center justify-center gap-3 px-4 py-2 h-[40px] border border-green-400 text-green-500 bg-green-100 rounded-md shadow-sm transition duration-200">
+                            <button
+                              onClick={() => handleChange(product._id, -1)}
+                              className="text-base font-medium hover:text-green-600"
+                            >
+                              −
+                            </button>
+                            <span className="text-base font-medium">
+                              {count}
+                            </span>
+                            <button
+                              onClick={() => handleChange(product._id, 1)}
+                              className="text-base font-medium hover:text-green-600"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )
                       ) : (
-                        <div className="flex items-center justify-center gap-3 px-4 py-2 h-[40px] border border-green-400 text-green-500 bg-green-100 rounded-md shadow-sm transition duration-200">
-                          <button
-                            onClick={() => handleChange(product._id, -1)}
-                            className="text-base font-medium hover:text-green-600"
-                          >
-                            −
-                          </button>
-                          <span className="text-base font-medium">{count}</span>
-                          <button
-                            onClick={() => handleChange(product._id, 1)}
-                            className="text-base font-medium hover:text-green-600"
-                          >
-                            +
-                          </button>
-                        </div>
+                        <span className="flex items-center justify-center h-[40px] px-3 text-sm text-red-500 border border-red-300 bg-red-50 rounded-md">
+                          Out of Stock
+                        </span>
                       )}
                     </div>
                   </div>

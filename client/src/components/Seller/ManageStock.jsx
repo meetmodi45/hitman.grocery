@@ -1,9 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
-import { dummyProducts } from "../../assets/assets";
+import React, { useEffect, useState, useRef } from "react";
 import { FiEdit } from "react-icons/fi";
+import axios from "axios";
 import toast from "react-hot-toast";
 
 const ManageStock = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("/api/seller/products");
+        //console.log("👉 Backend Response:", res.data);
+        setProducts(res.data);
+      } catch (err) {
+        toast.error("Failed to fetch products");
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="flex-1 pb-10 flex flex-col justify-between">
       <div className="w-full md:p-10 p-4">
@@ -11,7 +26,6 @@ const ManageStock = () => {
           Manage Stock
         </h2>
 
-        {/* Scrollable on small screens */}
         <div className="overflow-x-auto rounded-md border border-gray-200 bg-white shadow-sm">
           <table className="w-full text-sm text-left">
             <thead className="text-gray-900 bg-gray-100 text-sm">
@@ -19,10 +33,10 @@ const ManageStock = () => {
                 <th className="px-4 py-3 font-medium whitespace-nowrap">
                   Product
                 </th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap hidden sm:table-cell">
+                <th className="px-4 py-3 font-medium hidden sm:table-cell">
                   Category
                 </th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap hidden md:table-cell">
+                <th className="px-4 py-3 font-medium hidden md:table-cell">
                   Offer Price
                 </th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">
@@ -32,9 +46,10 @@ const ManageStock = () => {
             </thead>
 
             <tbody className="text-gray-700 bg-white">
-              {dummyProducts.map((product) => (
-                <ProductRow key={product._id} product={product} />
-              ))}
+              {Array.isArray(products) &&
+                products.map((product) => (
+                  <ProductRow key={product._id} product={product} />
+                ))}
             </tbody>
           </table>
         </div>
@@ -47,38 +62,57 @@ const ProductRow = ({ product }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [price, setPrice] = useState(product.offerPrice);
   const [inStock, setInStock] = useState(product.inStock);
-  const [lastPrice, setLastPrice] = useState(product.offerPrice);
 
   const inputRef = useRef(null);
   const rowRef = useRef(null);
 
+  const updateProduct = async () => {
+    try {
+      await axios.put(`/api/seller/update/${product._id}`, {
+        offerPrice: Number(price),
+        inStock,
+      });
+      toast.success(`Updated "${product.name}"`);
+    } catch {
+      toast.error("Update failed");
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (rowRef.current && !rowRef.current.contains(e.target)) {
+        if (isEditing) updateProduct();
         setIsEditing(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isEditing]);
 
   useEffect(() => {
     if (isEditing) inputRef.current?.focus();
   }, [isEditing]);
 
-  const handlePriceChange = (e) => {
-    const newVal = e.target.value;
-    if (!isNaN(newVal) && parseFloat(newVal) >= 0) {
-      setPrice(newVal);
+  const handleEditClick = () => {
+    if (!isEditing) setIsEditing(true);
+    else {
+      updateProduct();
+      setIsEditing(false);
     }
   };
 
-  const handleEditClick = () => {
-    if (!isEditing && lastPrice !== price) {
-      toast.success(`Offer price updated for "${product.name}" ✅`);
-      setLastPrice(price);
+  const handleToggleStock = async () => {
+    const newVal = !inStock;
+    setInStock(newVal);
+    try {
+      await axios.put(`/api/seller/update/${product._id}`, {
+        offerPrice: Number(price),
+        inStock: newVal,
+      });
+      toast.success(`Stock updated for "${product.name}"`);
+    } catch {
+      toast.error("Failed to update stock");
     }
-    setIsEditing(true);
   };
 
   return (
@@ -86,7 +120,6 @@ const ProductRow = ({ product }) => {
       ref={rowRef}
       className="border-t border-gray-200 hover:bg-gray-50 transition"
     >
-      {/* Product cell with mobile price editor */}
       <td className="px-4 py-3 min-w-[220px]">
         <div className="flex items-center gap-3">
           <img
@@ -96,24 +129,19 @@ const ProductRow = ({ product }) => {
           />
           <div>
             <p className="font-medium text-sm sm:text-base">{product.name}</p>
-
-            {/* Mobile-only editable price */}
             <div className="flex items-center gap-2 mt-1 sm:hidden">
               <input
                 type="number"
                 ref={inputRef}
                 value={price}
-                readOnly={!isEditing}
-                onBlur={() => setIsEditing(false)}
-                onChange={handlePriceChange}
-                className={`w-24 px-2 py-1 rounded border font-medium text-gray-800 text-sm transition-all ${
+                onChange={(e) => setPrice(e.target.value)}
+                className={`w-24 px-2 py-1 rounded border font-medium text-gray-800 text-sm ${
                   isEditing
                     ? "border-blue-400 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
                     : "border-gray-300 bg-gray-100 cursor-default"
                 }`}
               />
               <button
-                type="button"
                 onClick={handleEditClick}
                 className="text-gray-500 hover:text-blue-600"
               >
@@ -124,29 +152,22 @@ const ProductRow = ({ product }) => {
         </div>
       </td>
 
-      {/* Category */}
-      <td className="px-4 py-3 hidden sm:table-cell whitespace-nowrap text-sm">
-        {product.category}
-      </td>
+      <td className="px-4 py-3 hidden sm:table-cell">{product.category}</td>
 
-      {/* Price input on medium+ */}
-      <td className="px-4 py-3 hidden md:table-cell whitespace-nowrap">
+      <td className="px-4 py-3 hidden md:table-cell">
         <div className="flex items-center gap-2">
           <input
             type="number"
             ref={inputRef}
             value={price}
-            readOnly={!isEditing}
-            onBlur={() => setIsEditing(false)}
-            onChange={handlePriceChange}
-            className={`w-20 px-2 py-1 rounded border font-medium text-gray-800 transition-all ${
+            onChange={(e) => setPrice(e.target.value)}
+            className={`w-20 px-2 py-1 rounded border font-medium text-gray-800 ${
               isEditing
                 ? "border-blue-400 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
                 : "border-gray-300 bg-gray-100 cursor-default"
             }`}
           />
           <button
-            type="button"
             onClick={handleEditClick}
             className="text-gray-500 hover:text-blue-600"
           >
@@ -155,14 +176,13 @@ const ProductRow = ({ product }) => {
         </div>
       </td>
 
-      {/* In Stock Toggle */}
       <td className="px-4 py-3">
         <label className="relative inline-flex items-center cursor-pointer gap-3">
           <input
             type="checkbox"
             className="sr-only peer"
             checked={inStock}
-            onChange={() => setInStock(!inStock)}
+            onChange={handleToggleStock}
           />
           <div className="w-12 h-7 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors duration-200" />
           <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5" />

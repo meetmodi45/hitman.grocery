@@ -12,6 +12,7 @@ router.get("/logout", logoutSeller);
 router.get("/check-auth", authSeller, (req, res) => {
   res.status(200).json({ success: true });
 });
+
 router.post("/add-product", upload.array("images", 4), async (req, res) => {
   try {
     const { name, description, category, price, offerPrice } = req.body;
@@ -53,6 +54,32 @@ router.post("/add-product", upload.array("images", 4), async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// GET all products (for seller dashboard)
+router.get("/products", async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
+// PUT update product offerPrice and inStock
+router.put("/update/:id", async (req, res) => {
+  const { offerPrice, inStock } = req.body;
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { offerPrice, inStock },
+      { new: true }
+    );
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update product" });
   }
 });
 

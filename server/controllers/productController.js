@@ -13,14 +13,13 @@ export const getAllProducts = async (req, res) => {
 };
 
 //Get Single Product by ID
-export const getSingleProduct = async (req, res) => {
+export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    res.status(200).json(product);
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    res.json(product);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch product", error: err.message });
+    res.status(500).json({ error: "Server error" });
   }
 };
 

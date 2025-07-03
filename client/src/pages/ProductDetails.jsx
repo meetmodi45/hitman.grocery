@@ -1,34 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
+import axios from "axios";
 import { assets } from "../assets/assets";
 
 const ProductDetail = () => {
-  const { productId } = useParams(); // Get product ID from URL
+  const { productId } = useParams(); // from URL
   const navigate = useNavigate();
-  const { products } = useAppContext();
+
   const [product, setProduct] = useState(null);
   const [thumbnail, setThumbnail] = useState("");
   const [count, setCount] = useState(1);
 
-  // Find product by ID when component mounts or productId changes
   useEffect(() => {
-    if (products.length > 0) {
-      const foundProduct = products.find((p) => p._id === productId);
-      if (foundProduct) {
-        setProduct(foundProduct);
-        // Use 'image' instead of 'images'
-        setThumbnail(foundProduct.image[0]); // Now matches your data structure
-      } else {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:4000/api/products/${productId}`
+        );
+        const data = res.data;
+        setProduct(data);
+        setThumbnail(data.image[0]);
+      } catch (err) {
+        console.error("Product not found:", err);
         navigate("/404");
       }
-    }
-  }, [productId, products, navigate]);
+    };
+
+    fetchProduct();
+  }, [productId, navigate]);
 
   const handleAddToCart = () => {
     toast.success(`${count} ${product.name} added to cart`);
-    // Add your cart logic here
+    // Add cart logic here
   };
 
   if (!product) return <div className="text-center py-20">Loading...</div>;
@@ -101,19 +105,21 @@ const ProductDetail = () => {
         <div className="text-sm w-full md:w-1/2">
           <h1 className="text-3xl font-medium">{product.name}</h1>
 
-          {/* Rating */}
-          <div className="flex items-center gap-0.5 mt-1">
-            {Array(5)
-              .fill("")
-              .map((_, i) =>
-                i < product.rating ? (
-                  <img src={assets.star_icon} alt="star" key={i} />
-                ) : (
-                  <img src={assets.star_dull_icon} alt="star" key={i} />
-                )
-              )}
-            <p className="text-base ml-2">({product.rating})</p>
-          </div>
+          {/* Rating (if available) */}
+          {product.rating && (
+            <div className="flex items-center gap-0.5 mt-1">
+              {Array(5)
+                .fill("")
+                .map((_, i) =>
+                  i < product.rating ? (
+                    <img src={assets.star_icon} alt="star" key={i} />
+                  ) : (
+                    <img src={assets.star_dull_icon} alt="star" key={i} />
+                  )
+                )}
+              <p className="text-base ml-2">({product.rating})</p>
+            </div>
+          )}
 
           {/* Pricing */}
           <div className="mt-6">
@@ -146,15 +152,17 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Product Description */}
+          {/* Description */}
           <p className="text-base font-medium mt-6">About Product</p>
           <ul className="list-disc ml-4 text-gray-500/70">
-            {product.description.map((desc, index) => (
-              <li key={index}>{desc}</li>
-            ))}
+            {Array.isArray(product.description) ? (
+              product.description.map((desc, i) => <li key={i}>{desc}</li>)
+            ) : (
+              <li>{product.description}</li>
+            )}
           </ul>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="flex items-center mt-10 gap-4 text-base">
             <button
               onClick={handleAddToCart}

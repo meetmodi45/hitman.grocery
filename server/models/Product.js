@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: {
+      type: [String],
+      required: true,
+      get: (v) => (Array.isArray(v) ? v : [v]),
+    },
     offerPrice: { type: Number, required: true },
     price: { type: Number, required: true },
     image: { type: [String], required: true },

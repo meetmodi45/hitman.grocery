@@ -4,6 +4,7 @@ import {
   createProduct,
   getAllProducts,
   deleteProduct,
+  getProductById,
 } from "../controllers/productController.js";
 
 import authSeller from "../middlewares/authSeller.js";
@@ -19,4 +20,6 @@ router.get("/", getAllProducts);
 // Delete a product (Only Seller)
 router.delete("/:id", authSeller, deleteProduct);
 
+// Get a single product (Public)
+router.get("/:id", getProductById);
 export default router;

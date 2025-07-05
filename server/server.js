@@ -6,6 +6,7 @@ import "dotenv/config";
 import userRoutes from "./routes/userRoutes.js";
 import sellerRoutes from "./routes/sellerRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import OrderRoutes from "./routes/orders.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -30,6 +31,9 @@ app.use("/api/seller", sellerRoutes);
 
 // Route for products
 app.use("/api/products", productRoutes);
+
+// Route for orders
+app.use("/api/orders", OrderRoutes);
 
 const startServer = async () => {
   await connectDB();

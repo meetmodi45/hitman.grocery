@@ -1,17 +1,20 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "../utils/axiosInstance"; // Make sure this points to your API base
 export const AppContext = createContext();
-import { dummyProducts } from "../assets/assets";
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(false);
   const [isSeller, setIsSeller] = useState(true);
   const [showUserLogin, setShowUserLogin] = useState(false);
-  const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [productError, setProductError] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
 
+  // Cart
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem("cartItems");
     return savedCart ? JSON.parse(savedCart) : [];
@@ -20,6 +23,8 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
+
+  // Addresses
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [savedAddresses, setSavedAddresses] = useState(() => {
     const data = localStorage.getItem("savedAddresses");
@@ -30,6 +35,26 @@ export const AppContextProvider = ({ children }) => {
     localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
   }, [savedAddresses]);
 
+  // 🟢 Fetch Products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      try {
+        const res = await axios.get("/products");
+        setProducts(res.data.products || []);
+        setProductError(null);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+        setProductError("Failed to load products");
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Cart Logic
   const getCartQuantityById = (_id) => {
     const item = cartItems.find((item) => item._id === _id);
     return item ? item.quantity : 0;
@@ -72,9 +97,7 @@ export const AppContextProvider = ({ children }) => {
     );
   };
 
-  useEffect(() => {
-    setProducts(dummyProducts);
-  }, []);
+  // Value to share in context
   const value = {
     user,
     setUser,
@@ -85,6 +108,8 @@ export const AppContextProvider = ({ children }) => {
     navigate,
     products,
     setProducts,
+    loadingProducts,
+    productError,
     searchQuery,
     setSearchQuery,
     cartItems,

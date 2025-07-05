@@ -3,10 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { assets } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
 
 const ProductDetail = () => {
-  const { productId } = useParams(); // from URL
+  const { productId } = useParams();
   const navigate = useNavigate();
+
+  const { addToCart, updateQuantity, getCartQuantityById } = useAppContext();
 
   const [product, setProduct] = useState(null);
   const [thumbnail, setThumbnail] = useState("");
@@ -21,6 +24,7 @@ const ProductDetail = () => {
         const data = res.data;
         setProduct(data);
         setThumbnail(data.image[0]);
+        setCount(getCartQuantityById(data._id) || 1);
       } catch (err) {
         console.error("Product not found:", err);
         navigate("/404");
@@ -28,18 +32,36 @@ const ProductDetail = () => {
     };
 
     fetchProduct();
-  }, [productId, navigate]);
+  }, [productId, navigate, getCartQuantityById]);
 
   const handleAddToCart = () => {
+    const currentQty = getCartQuantityById(product._id);
+
+    if (currentQty === 0) {
+      addToCart(product._id);
+      if (count > 1) updateQuantity(product._id, count);
+    } else {
+      updateQuantity(product._id, count);
+    }
+
     toast.success(`${count} ${product.name} added to cart`);
-    // Add cart logic here
+  };
+
+  const getDescriptionPoints = (desc) => {
+    if (Array.isArray(desc)) return desc;
+    if (typeof desc === "string") {
+      return desc
+        .split(/[\n•\-•\.]/)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+    }
+    return [];
   };
 
   if (!product) return <div className="text-center py-20">Loading...</div>;
 
   return (
     <div className="max-w-6xl w-full px-6 mx-auto mb-8 pt-20">
-      {/* Breadcrumbs */}
       <p className="py-4">
         <span
           className="cursor-pointer hover:text-primary-dull"
@@ -47,29 +69,26 @@ const ProductDetail = () => {
         >
           Home
         </span>{" "}
-        /
+        /{" "}
         <span
           className="cursor-pointer hover:text-primary-dull"
           onClick={() => navigate("/products")}
         >
-          {" "}
           Products
         </span>{" "}
-        /
+        /{" "}
         <span
           className="cursor-pointer hover:text-primary"
           onClick={() =>
             navigate(`/products/${product.category.toLowerCase()}`)
           }
         >
-          {" "}
           {product.category}
         </span>{" "}
-        /<span className="text-primary"> {product.name}</span>
+        / <span className="text-primary">{product.name}</span>
       </p>
 
       <div className="flex flex-col md:flex-row gap-16 mt-4">
-        {/* Image Gallery */}
         <div className="flex gap-3">
           <div className="flex flex-col gap-3">
             {product.image.map((img, index) => (
@@ -90,8 +109,6 @@ const ProductDetail = () => {
               </div>
             ))}
           </div>
-
-          {/* Main Image */}
           <div className="border border-gray-300 rounded-lg overflow-hidden max-w-[500px]">
             <img
               src={thumbnail}
@@ -101,11 +118,9 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Product Info */}
         <div className="text-sm w-full md:w-1/2">
           <h1 className="text-3xl font-medium">{product.name}</h1>
 
-          {/* Rating (if available) */}
           {product.rating && (
             <div className="flex items-center gap-0.5 mt-1">
               {Array(5)
@@ -121,16 +136,14 @@ const ProductDetail = () => {
             </div>
           )}
 
-          {/* Pricing */}
           <div className="mt-6">
             <p className="text-gray-500/70 line-through">
               MRP: ₹{product.price}
             </p>
-            <p className="text-2xl font-medium">MRP: ₹{product.offerPrice}</p>
+            <p className="text-2xl font-medium">₹{product.offerPrice}</p>
             <span className="text-gray-500/70">(inclusive of all taxes)</span>
           </div>
 
-          {/* Quantity Selector */}
           <div className="mt-6 flex items-center gap-4">
             <p className="text-base font-medium">Quantity:</p>
             <div className="flex items-center border border-gray-300 rounded-md">
@@ -152,17 +165,13 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Description */}
           <p className="text-base font-medium mt-6">About Product</p>
-          <ul className="list-disc ml-4 text-gray-500/70">
-            {Array.isArray(product.description) ? (
-              product.description.map((desc, i) => <li key={i}>{desc}</li>)
-            ) : (
-              <li>{product.description}</li>
-            )}
+          <ul className="list-disc ml-5 text-gray-500/80 text-sm space-y-1 mt-2">
+            {getDescriptionPoints(product.description).map((desc, i) => (
+              <li key={i}>{desc}</li>
+            ))}
           </ul>
 
-          {/* Buttons */}
           <div className="flex items-center mt-10 gap-4 text-base">
             <button
               onClick={handleAddToCart}

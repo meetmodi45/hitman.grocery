@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const {
@@ -16,6 +18,7 @@ const Cart = () => {
   } = useAppContext();
 
   const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
   const removeItem = (_id) => {
     removeFromCart(_id);
@@ -27,6 +30,45 @@ const Cart = () => {
   );
   const gst = Math.round(totalPrice * 0.05);
   const finalAmount = totalPrice + gst;
+
+  const handlePlaceOrder = async () => {
+    if (!selectedAddress) {
+      toast.error("Please select a delivery address");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please log in to place order");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:4000/api/orders",
+        {
+          products: cartItems.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+          })),
+          shippingAddress: selectedAddress,
+          paymentMethod,
+        },
+        {
+          withCredentials: true, // 🔥 Send cookies (JWT token)
+        }
+      );
+
+      toast.success("Order placed successfully!");
+      console.log("Order placed:", res.data);
+
+      // Optionally: clear localStorage/cart
+      localStorage.removeItem("cartItems");
+      window.location.reload();
+    } catch (err) {
+      console.error("Order Error:", err);
+      toast.error("Order failed. Try again.");
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row py-4 md:py-16 max-w-6xl w-full px-4 md:px-6 mx-auto pt-20 md:pt-24">
@@ -41,7 +83,6 @@ const Cart = () => {
 
         {cartItems.length > 0 ? (
           <>
-            {/* Hide column headers on mobile */}
             <div className="hidden md:grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-semibold pb-3">
               <p className="text-left">Product Details</p>
               <p className="text-center">Subtotal</p>
@@ -82,7 +123,6 @@ const Cart = () => {
                   </div>
                 </div>
 
-                {/* Mobile: Show price and action inline */}
                 <div className="flex justify-between items-center w-full md:hidden pl-20">
                   <p className="font-semibold text-primary">
                     ₹{Number(item.quantity) * Number(item.price)}
@@ -109,11 +149,9 @@ const Cart = () => {
                   </button>
                 </div>
 
-                {/* Desktop: Show price and action in columns */}
                 <p className="hidden md:block text-center font-semibold text-primary">
                   ₹{Number(item.quantity) * Number(item.price)}
                 </p>
-
                 <button
                   className="hidden md:block cursor-pointer mx-auto"
                   onClick={() => removeItem(item._id)}
@@ -216,7 +254,11 @@ const Cart = () => {
           <p className="text-xs md:text-sm font-medium uppercase mt-4 md:mt-6 text-gray-600">
             Payment Method
           </p>
-          <select className="w-full border border-gray-300 bg-white px-3 py-2 mt-1 md:mt-2 text-xs md:text-sm rounded-md outline-none">
+          <select
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            className="w-full border border-gray-300 bg-white px-3 py-2 mt-1 md:mt-2 text-xs md:text-sm rounded-md outline-none"
+          >
             <option value="COD">Cash On Delivery</option>
             <option value="Online">Online Payment</option>
           </select>
@@ -244,7 +286,10 @@ const Cart = () => {
         </div>
 
         {user ? (
-          <button className="w-full py-2 md:py-3 mt-4 md:mt-6 bg-primary-dull hover:bg-primary hover:shadow-lg transform hover:scale-105 text-white font-semibold rounded-md transition text-sm md:text-base">
+          <button
+            onClick={handlePlaceOrder}
+            className="w-full py-2 md:py-3 mt-4 md:mt-6 bg-primary-dull hover:bg-primary hover:shadow-lg transform hover:scale-105 text-white font-semibold rounded-md transition text-sm md:text-base"
+          >
             Place Order
           </button>
         ) : (

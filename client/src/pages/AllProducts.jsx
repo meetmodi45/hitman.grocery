@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAppContext } from "../context/AppContext";
-import axios from "../utils/axiosInstance";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 
@@ -13,23 +12,10 @@ const AllProducts = () => {
     addToCart,
     updateQuantity,
     removeFromCart,
+    products,
+    loadingProducts,
+    productError,
   } = useAppContext();
-
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get("/products");
-        setProducts(res.data.products);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        toast.error("Failed to load products");
-      }
-    };
-
-    fetchProducts();
-  }, []);
 
   const getCartQuantity = (productId) => {
     const cartItem = cartItems.find((item) => item._id === productId);
@@ -41,22 +27,22 @@ const AllProducts = () => {
     toast.success("Added to Cart");
   };
 
-  const safeProducts = Array.isArray(products) ? products : [];
-
-  const filteredProducts = safeProducts.filter((product) => {
-    const query = (searchQuery || "").toLowerCase();
-    return (
-      String(product.name || "")
-        .toLowerCase()
-        .includes(query) ||
-      String(product.category || "")
-        .toLowerCase()
-        .includes(query) ||
-      String(product.description || "")
-        .toLowerCase()
-        .includes(query)
-    );
-  });
+  const filteredProducts = Array.isArray(products)
+    ? products.filter((product) => {
+        const query = (searchQuery || "").toLowerCase();
+        return (
+          String(product.name || "")
+            .toLowerCase()
+            .includes(query) ||
+          String(product.category || "")
+            .toLowerCase()
+            .includes(query) ||
+          String(product.description || "")
+            .toLowerCase()
+            .includes(query)
+        );
+      })
+    : [];
 
   const handleChange = (productId, delta) => {
     const currentQuantity = getCartQuantity(productId);
@@ -80,7 +66,13 @@ const AllProducts = () => {
   return (
     <div className="mt-16 mb-16 px-2 pt-16">
       <p className="text-2xl md:text-3xl font-medium mb-6">All Products</p>
-      {filteredProducts.length > 0 ? (
+
+      {/* Loader/Error */}
+      {loadingProducts ? (
+        <p className="text-xl text-gray-500">Loading products...</p>
+      ) : productError ? (
+        <p className="text-xl text-red-500">{productError}</p>
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center">
           {filteredProducts.map((product) => {
             const count = getCartQuantity(product._id);
@@ -106,6 +98,7 @@ const AllProducts = () => {
                     alt={product.name}
                   />
                 </div>
+
                 <div className="text-gray-500/60 text-sm">
                   <p>{product.category}</p>
                   <p className="text-gray-700 font-medium text-lg truncate w-full">
@@ -128,6 +121,7 @@ const AllProducts = () => {
                       ))}
                     <p>({product.rating || 0})</p>
                   </div>
+
                   <div className="flex items-end justify-between mt-3">
                     <p className="md:text-xl text-base font-medium text-primary">
                       ₹{product.offerPrice}{" "}

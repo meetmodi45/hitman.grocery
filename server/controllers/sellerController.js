@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+// SELLER LOGIN
 export const loginSeller = async (req, res) => {
   const { email, password } = req.body;
 
@@ -10,12 +11,10 @@ export const loginSeller = async (req, res) => {
     email === process.env.SELLER_EMAIL &&
     password === process.env.SELLER_PASSWORD
   ) {
-    // Generate token with email
     const token = jwt.sign({ email }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
-    // Set sellerToken in cookies
     res.cookie("sellerToken", token, {
       httpOnly: true,
       sameSite: "strict",
@@ -29,6 +28,7 @@ export const loginSeller = async (req, res) => {
   }
 };
 
+// SELLER LOGOUT
 export const logoutSeller = (req, res) => {
   res.clearCookie("sellerToken", {
     httpOnly: true,
@@ -38,4 +38,9 @@ export const logoutSeller = (req, res) => {
   });
 
   res.status(200).json({ message: "Logged out successfully" });
+};
+
+// CHECK SELLER AUTH
+export const checkSellerAuth = (req, res) => {
+  res.status(200).json({ success: true });
 };

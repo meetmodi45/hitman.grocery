@@ -7,6 +7,7 @@ import userRoutes from "./routes/userRoutes.js";
 import sellerRoutes from "./routes/sellerRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import OrderRoutes from "./routes/orders.js";
+import authRoutes from "./routes/userAuth.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -34,6 +35,9 @@ app.use("/api/products", productRoutes);
 
 // Route for orders
 app.use("/api/orders", OrderRoutes);
+
+// Route for authentication
+app.use("/api/userAuth", authRoutes);
 
 const startServer = async () => {
   await connectDB();

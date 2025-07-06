@@ -14,6 +14,26 @@ export const AppContextProvider = ({ children }) => {
   const [productError, setProductError] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
 
+  // // login using saved cookies
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:4000/api/userAuth/profile",
+          {
+            withCredentials: true,
+          }
+        );
+        setUser(true);
+      } catch (err) {
+        setUser(false);
+        console.log("User not logged in:", err.message);
+      }
+    };
+
+    checkLogin();
+  }, []);
+
   // Cart
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem("cartItems");
@@ -40,7 +60,7 @@ export const AppContextProvider = ({ children }) => {
     const fetchProducts = async () => {
       setLoadingProducts(true);
       try {
-        const res = await axios.get("/products");
+        const res = await axios.get("http://localhost:4000/api/products");
         setProducts(res.data.products || []);
         setProductError(null);
       } catch (error) {

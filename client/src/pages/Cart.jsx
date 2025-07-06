@@ -54,7 +54,7 @@ const Cart = () => {
           paymentMethod,
         },
         {
-          withCredentials: true, // 🔥 Send cookies (JWT token)
+          withCredentials: true,
         }
       );
 

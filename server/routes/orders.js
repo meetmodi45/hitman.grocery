@@ -3,6 +3,8 @@ import authUser from "../middlewares/authUser.js";
 import Order from "../models/orders.js";
 import { getMyOrders } from "../controllers/orderController.js";
 import Product from "../models/Product.js";
+import { getAllOrdersForSeller } from "../controllers/orderController.js";
+
 const router = express.Router();
 
 // @POST /api/orders
@@ -47,5 +49,8 @@ router.post("/", authUser, async (req, res) => {
 
 // @GET /api/orders
 router.get("/my", authUser, getMyOrders);
+
+// @GET /api/orders/seller
+router.get("/all", getAllOrdersForSeller);
 
 export default router;

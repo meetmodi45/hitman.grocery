@@ -12,6 +12,24 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+// Get best sellers
+export const getBestSellers = async (req, res) => {
+  try {
+    const bestSellerIds = [
+      "686597adb02253cf3ee45b19", // Basmati Rice
+      "6868df5143f2a0c3271d017e", // Amul Milk
+      "686a2eeaf67f5611975d5b76", // Tomatoes
+      "686a2f2af67f5611975d5b78", // Spinach
+    ];
+
+    const products = await Product.find({ _id: { $in: bestSellerIds } });
+    res.json(products);
+  } catch (err) {
+    console.error("Error fetching best sellers:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 //Get Single Product by ID
 export const getProductById = async (req, res) => {
   try {

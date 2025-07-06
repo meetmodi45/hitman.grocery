@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { categories } from "../../assets/assets";
+import toast from "react-hot-toast";
 
 const AddItems = () => {
   const [images, setImages] = useState([]);
@@ -12,7 +13,7 @@ const AddItems = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (images.length === 0) {
-      alert("Please upload at least one product image.");
+      toast.error("Please select at least one image");
       return;
     }
 
@@ -35,7 +36,7 @@ const AddItems = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Product added successfully!");
+        toast.success("Product added successfully!");
         // Clear form
         setName("");
         setDescription("");
@@ -48,7 +49,7 @@ const AddItems = () => {
       }
     } catch (err) {
       console.error("Upload failed:", err);
-      alert("Failed to upload product.");
+      toast.error("Upload failed. Please try again.");
     }
   };
 

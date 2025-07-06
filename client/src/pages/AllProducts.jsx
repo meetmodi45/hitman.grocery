@@ -2,6 +2,7 @@ import React from "react";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 const AllProducts = () => {
   const {
@@ -26,21 +27,27 @@ const AllProducts = () => {
     addToCart(productId);
     toast.success("Added to Cart");
   };
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const selectedCategory = queryParams.get("category");
 
   const filteredProducts = Array.isArray(products)
     ? products.filter((product) => {
-        const query = (searchQuery || "").toLowerCase();
-        return (
+        const matchesSearch =
+          !searchQuery ||
           String(product.name || "")
             .toLowerCase()
-            .includes(query) ||
-          String(product.category || "")
-            .toLowerCase()
-            .includes(query) ||
+            .includes(searchQuery.toLowerCase()) ||
           String(product.description || "")
             .toLowerCase()
-            .includes(query)
-        );
+            .includes(searchQuery.toLowerCase());
+
+        const matchesCategory =
+          !selectedCategory ||
+          String(product.category || "").toLowerCase() ===
+            selectedCategory.toLowerCase();
+
+        return matchesSearch && matchesCategory;
       })
     : [];
 

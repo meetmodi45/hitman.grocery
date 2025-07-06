@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
 import { categories } from "../assets/assets";
 
 const Categories = () => {
@@ -16,7 +15,12 @@ const Categories = () => {
             className="group cursor-pointer p-6 rounded-xl flex flex-col justify-center items-center hover:shadow-lg transition-all duration-300 bg-white"
             style={{ backgroundColor: category.bgColor }}
             onClick={() => {
-              navigate(`/products/${category.path.toLowerCase()}`);
+              navigate(
+                `/products?category=${encodeURIComponent(
+                  category.text.toLowerCase()
+                )}`
+              );
+
               scrollTo(0, 0);
             }}
           >

@@ -38,7 +38,7 @@ const Navbar = () => {
   };
 
   const goToOrders = () => {
-    navigate("/orders");
+    navigate("/myorders");
   };
 
   return (
@@ -213,7 +213,7 @@ const Navbar = () => {
           {user && (
             <button
               onClick={() => {
-                navigate("/orders");
+                navigate("/myorders");
                 setOpen(false);
               }}
               className="w-full text-left py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium"

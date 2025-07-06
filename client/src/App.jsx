@@ -16,6 +16,7 @@ import FAQ from "./pages/FAQ";
 import Seller from "./pages/Seller";
 import SellerLogin from "./pages/SellerLogin";
 import ProtectedSellerRoute from "./pages/ProtectedSellerRoute";
+import MyOrders from "./pages/MyOrders";
 
 const App = () => {
   const { showUserLogin, showAddressModal } = useAppContext();
@@ -49,6 +50,7 @@ const App = () => {
               </ProtectedSellerRoute>
             }
           />
+          <Route path="/myorders" element={<MyOrders />} />
         </Routes>
         <Toaster
           position="top-center"

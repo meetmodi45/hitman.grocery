@@ -29,6 +29,10 @@ const orderSchema = new mongoose.Schema(
       enum: ["COD", "Online"],
       required: true,
     },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );

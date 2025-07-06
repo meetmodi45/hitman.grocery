@@ -19,6 +19,7 @@ const Navbar = () => {
       !window.location.pathname.includes("/products")
     ) {
       navigate("/products");
+      window.location.reload();
     }
   }, [searchQuery, navigate]);
   const handleLogout = async () => {
@@ -29,6 +30,7 @@ const Navbar = () => {
       if (response.status === 200) {
         setUser(false);
         navigate("/");
+        // window.location.reload();
         toast.success("Logged out successfully");
       }
     } catch (err) {
@@ -39,6 +41,7 @@ const Navbar = () => {
 
   const goToOrders = () => {
     navigate("/myorders");
+    window.location.reload();
   };
 
   return (
@@ -54,20 +57,28 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden sm:flex items-center gap-6 lg:gap-8">
-          <NavLink
-            to="/"
-            className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
-            onClick={() => setSearchQuery("")}
+          <div
+            onClick={() => {
+              setSearchQuery("");
+              navigate("/");
+              window.location.reload();
+            }}
+            className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full cursor-pointer"
           >
             Home
-          </NavLink>
-          <NavLink
-            to="/products"
-            className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
-            onClick={() => setSearchQuery("")}
+          </div>
+
+          <div
+            onClick={() => {
+              setSearchQuery("");
+              navigate("/products");
+              window.location.reload();
+            }}
+            className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full cursor-pointer"
           >
             All Products
-          </NavLink>
+          </div>
+
           <NavLink
             to="/faq"
             className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
@@ -101,18 +112,22 @@ const Navbar = () => {
           </div>
 
           <div className="relative cursor-pointer group">
-            <NavLink to="/cart">
-              <div className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                <img
-                  src={assets.nav_cart_icon}
-                  alt="cartIcon"
-                  className="w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity duration-200"
-                />
-                <button className="absolute -top-1 -right-1 text-xs text-white bg-primary hover:bg-primary-dark w-5 h-5 rounded-full flex items-center justify-center font-semibold shadow-lg transition-all duration-200 hover:scale-110">
-                  {totalCount}
-                </button>
-              </div>
-            </NavLink>
+            <div
+              onClick={() => {
+                navigate("/cart");
+                window.location.reload();
+              }}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+            >
+              <img
+                src={assets.nav_cart_icon}
+                alt="cartIcon"
+                className="w-6 h-6 opacity-70 group-hover:opacity-100 transition-opacity duration-200"
+              />
+              <button className="absolute -top-1 -right-1 text-xs text-white bg-primary hover:bg-primary-dark w-5 h-5 rounded-full flex items-center justify-center font-semibold shadow-lg transition-all duration-200 hover:scale-110">
+                {totalCount}
+              </button>
+            </div>
           </div>
 
           {!user ? (
@@ -168,18 +183,23 @@ const Navbar = () => {
             </div>
           </div>
 
-          <NavLink to="/cart">
-            <div className="relative p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
-              <img
-                src={assets.nav_cart_icon}
-                alt="cartIcon"
-                className="w-6 h-6 opacity-70"
-              />
-              <span className="absolute -top-1 -right-1 text-xs text-white bg-primary hover:bg-primary-dark w-5 h-5 rounded-full flex items-center justify-center font-semibold shadow-md transition-all duration-200">
-                {totalCount}
-              </span>
-            </div>
-          </NavLink>
+          <div
+            onClick={() => {
+              navigate("/cart");
+              window.location.reload();
+            }}
+            className="relative p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+          >
+            <img
+              src={assets.nav_cart_icon}
+              alt="cartIcon"
+              className="w-6 h-6 opacity-70"
+            />
+            <span className="absolute -top-1 -right-1 text-xs text-white bg-primary hover:bg-primary-dark w-5 h-5 rounded-full flex items-center justify-center font-semibold shadow-md transition-all duration-200">
+              {totalCount}
+            </span>
+          </div>
+
           <button
             onClick={() => setOpen(!open)}
             aria-label="Menu"
@@ -196,20 +216,28 @@ const Navbar = () => {
               : "hidden opacity-0 -translate-y-2"
           } absolute top-[72px] left-0 w-full bg-white shadow-xl border-t border-gray-100 py-4 flex-col items-start gap-1 px-6 text-sm md:hidden transition-all duration-300 z-40`}
         >
-          <NavLink
-            to="/"
-            onClick={() => setOpen(false)}
-            className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium"
+          <div
+            onClick={() => {
+              setOpen(false);
+              navigate("/");
+              window.location.reload();
+            }}
+            className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium cursor-pointer"
           >
             Home
-          </NavLink>
-          <NavLink
-            to="/products"
-            onClick={() => setOpen(false)}
-            className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium"
+          </div>
+
+          <div
+            onClick={() => {
+              setOpen(false);
+              navigate("/products");
+              window.location.reload();
+            }}
+            className="w-full py-3 px-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200 font-medium cursor-pointer"
           >
             All Products
-          </NavLink>
+          </div>
+
           {user && (
             <button
               onClick={() => {

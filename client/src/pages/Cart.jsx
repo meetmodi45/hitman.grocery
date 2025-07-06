@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 const Cart = () => {
   const {
     cartItems,
+    setCartItems,
     updateQuantity,
     removeFromCart,
     user,
@@ -32,41 +33,110 @@ const Cart = () => {
   const finalAmount = totalPrice + gst;
 
   const handlePlaceOrder = async () => {
-    if (!selectedAddress) {
-      toast.error("Please select a delivery address");
-      return;
-    }
+    if (!selectedAddress)
+      return toast.error("Please select a delivery address");
+    if (!user) return setShowUserLogin(true);
 
-    if (!user) {
-      toast.error("Please log in to place order");
-      return;
-    }
+    if (paymentMethod === "COD") {
+      try {
+        await axios.post(
+          "http://localhost:4000/api/orders",
+          {
+            products: cartItems.map((item) => ({
+              product: item._id,
+              quantity: item.quantity,
+            })),
+            shippingAddress: selectedAddress,
+            paymentMethod: "COD",
+          },
+          { withCredentials: true }
+        );
 
-    try {
-      const res = await axios.post(
-        "http://localhost:4000/api/orders",
-        {
-          products: cartItems.map((item) => ({
-            product: item._id,
-            quantity: item.quantity,
-          })),
-          shippingAddress: selectedAddress,
-          paymentMethod,
-        },
-        {
-          withCredentials: true,
+        localStorage.removeItem("cartItems");
+        // setCartItems([]);
+        toast.success("Payment successful & order placed!", {
+          duration: 5000,
+        });
+
+        setTimeout(() => navigate("/myorders"), 2000);
+      } catch (err) {
+        toast.error("Order failed");
+        console.error("Order Error:", err);
+      }
+    } else {
+      try {
+        const loadRazorpayScript = () =>
+          new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+          });
+
+        const success = await loadRazorpayScript();
+        if (!success) {
+          toast.error("Razorpay SDK failed to load. Are you online?");
+          return;
         }
-      );
 
-      toast.success("Order placed successfully!");
-      console.log("Order placed:", res.data);
+        const res = await axios.post(
+          "http://localhost:4000/api/payment/razorpay",
+          { totalAmount: finalAmount },
+          { withCredentials: true }
+        );
 
-      // Optionally: clear localStorage/cart
-      localStorage.removeItem("cartItems");
-      window.location.reload();
-    } catch (err) {
-      console.error("Order Error:", err);
-      toast.error("Order failed. Try again.");
+        const { order } = res.data;
+
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: order.amount,
+          currency: "INR",
+          name: "Hitman Grocery",
+          description: "Online Payment",
+          order_id: order.id,
+          handler: async function (response) {
+            try {
+              await axios.post(
+                "http://localhost:4000/api/orders",
+                {
+                  products: cartItems.map((item) => ({
+                    product: item._id,
+                    quantity: item.quantity,
+                  })),
+                  shippingAddress: selectedAddress,
+                  paymentMethod: "Online",
+                },
+                { withCredentials: true }
+              );
+
+              localStorage.removeItem("cartItems");
+              // setCartItems([]);
+              toast.success("Payment successful & order placed!", {
+                duration: 5000,
+              });
+
+              setTimeout(() => navigate("/myorders"), 2000);
+            } catch (err) {
+              toast.error("Payment succeeded but order failed!");
+              console.error("Final Order Error:", err);
+            }
+          },
+          prefill: {
+            name: user.name,
+            email: user.email,
+          },
+          theme: {
+            color: "#4CAF50",
+          },
+        };
+
+        const razor = new window.Razorpay(options);
+        razor.open();
+      } catch (err) {
+        toast.error("Failed to initiate payment");
+        console.error("Razorpay Init Error:", err);
+      }
     }
   };
 

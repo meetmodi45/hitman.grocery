@@ -148,10 +148,11 @@ const Navbar = () => {
               <ul className="hidden group-hover:flex flex-col absolute top-10 right-0 bg-white shadow-xl border border-gray-100 py-2 min-w-[160px] rounded-lg text-sm z-50 pt-3">
                 <li
                   onClick={goToOrders}
-                  className="px-4 py-3 hover:bg-primary/5 text-gray-700 cursor-pointer transition-colors duration-150 font-medium"
+                  className="px-4 py-3 hover:bg-primary/5 text-gray-700 cursor-pointer transition-colors duration-150 font-medium "
                 >
                   My Orders
                 </li>
+
                 <li
                   onClick={handleLogout}
                   className="px-4 py-3 hover:bg-primary/5 text-gray-700 cursor-pointer transition-colors duration-150 font-medium border-t border-gray-100"

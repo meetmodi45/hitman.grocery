@@ -17,9 +17,10 @@ import Seller from "./pages/Seller";
 import SellerLogin from "./pages/SellerLogin";
 import ProtectedSellerRoute from "./pages/ProtectedSellerRoute";
 import MyOrders from "./pages/MyOrders";
+import UserChat from "./components/UserChat";
 
 const App = () => {
-  const { showUserLogin, showAddressModal } = useAppContext();
+  const { showUserLogin, showAddressModal, user } = useAppContext();
   const isSellerPath = useLocation().pathname.includes("seller");
   return (
     <div>
@@ -52,6 +53,7 @@ const App = () => {
           />
           <Route path="/myorders" element={<MyOrders />} />
         </Routes>
+        {user && <UserChat />}
         <Toaster
           position="top-center"
           toastOptions={{ duration: 1000 }}

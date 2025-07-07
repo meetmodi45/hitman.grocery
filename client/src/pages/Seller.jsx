@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AddItems from "../components/Seller/AddItems";
 import ManageStock from "../components/Seller/ManageStock";
 import Orders from "../components/Seller/Orders";
+import SellerUserChats from "../components/Seller/SellerUserChats";
 import { HiMenu } from "react-icons/hi";
 import axios from "../utils/axiosInstance";
 import toast from "react-hot-toast";
@@ -13,6 +14,7 @@ const Seller = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isSeller, setIsSeller } = useAppContext();
   const navigate = useNavigate();
+
   const menuItems = [
     {
       id: "add",
@@ -66,12 +68,28 @@ const Seller = () => {
         </svg>
       ),
     },
+    {
+      id: "userChats", // ✅ NEW TAB
+      name: "User Chats",
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <path
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"
+          />
+        </svg>
+      ),
+    },
   ];
 
   const componentsMap = {
     add: <AddItems />,
     stock: <ManageStock />,
     orders: <Orders />,
+    userChats: <SellerUserChats />,
   };
 
   const handleLogout = async () => {

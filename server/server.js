@@ -9,9 +9,16 @@ import productRoutes from "./routes/productRoutes.js";
 import OrderRoutes from "./routes/orders.js";
 import authRoutes from "./routes/userAuth.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import { initSocket } from "./sockets/chatSocket.js";
+
+import { Server as socketIO } from "socket.io";
+import http from "http";
 
 const app = express();
 const port = process.env.PORT || 4000;
+
+const server = http.createServer(app); // ✅ required for socket.io
 
 // Middleware
 app.use(express.json());
@@ -29,7 +36,6 @@ app.use("/api/users", userRoutes);
 
 // Route for seller
 app.use("/api/seller", sellerRoutes);
-// Start server after DB is connected
 
 // Route for products
 app.use("/api/products", productRoutes);
@@ -42,12 +48,28 @@ app.use("/api/userAuth", authRoutes);
 
 // Route for payment
 app.use("/api/payment", paymentRoutes);
+
+// Route for chat
+app.use("/api/chat", chatRoutes);
+
 const startServer = async () => {
   await connectDB();
 
-  app.listen(port, () =>
+  server.listen(port, () =>
     console.log(`Server is running on http://localhost:${port}`)
   );
+
+  // Initialize Socket.IO
+  const io = new socketIO(server, {
+    cors: {
+      origin: "http://localhost:5173",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
+
+  //  Plug in your modular socket logic
+  initSocket(io);
 };
 
 startServer();

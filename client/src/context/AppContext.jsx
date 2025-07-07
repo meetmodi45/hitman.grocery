@@ -27,7 +27,7 @@ export const AppContextProvider = ({ children }) => {
         setUser(true);
       } catch (err) {
         setUser(false);
-        console.log("User not logged in:", err.message);
+        // console.log("User not logged in:", err.message);
       }
     };
 

@@ -12,12 +12,17 @@ const SellerUserChats = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
-  const [unreadMap, setUnreadMap] = useState({}); // 🔴 Track unread messages
+  const [unreadMap, setUnreadMap] = useState({});
+  const [openedChats, setOpenedChats] = useState({}); // Tracks which chats have been opened
   const chatEndRef = useRef(null);
   const selectedUserRef = useRef(null);
 
   useEffect(() => {
     socket.emit("join", "seller");
+
+    return () => {
+      socket.off("receiveMessage");
+    };
   }, []);
 
   useEffect(() => {
@@ -25,13 +30,11 @@ const SellerUserChats = () => {
       try {
         const res = await axios.get(
           "http://localhost:4000/api/chat/all-users",
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         setUsers(res.data);
       } catch (err) {
-        console.error("❌ Error fetching user list", err);
+        console.error("Error fetching user list", err);
       }
     };
     fetchUsers();
@@ -49,10 +52,11 @@ const SellerUserChats = () => {
           );
           setMessages(res.data);
 
-          // ✅ Clear unread status
+          // Mark chat as opened and clear unread status
+          setOpenedChats((prev) => ({ ...prev, [selectedUser._id]: true }));
           setUnreadMap((prev) => ({ ...prev, [selectedUser._id]: false }));
         } catch (err) {
-          console.error("❌ Error fetching messages", err);
+          console.error("Error fetching messages", err);
         }
       };
 
@@ -61,6 +65,7 @@ const SellerUserChats = () => {
   }, [selectedUser]);
 
   useEffect(() => {
+    // Scroll to bottom when messages change
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -68,32 +73,37 @@ const SellerUserChats = () => {
     const handleMessage = (msg) => {
       const selected = selectedUserRef.current;
 
-      // ⛔ Skip if duplicate
+      // Skip if duplicate
       const isDuplicate = messages.some(
         (m) =>
-          m.message === msg.message &&
-          m.senderId === msg.senderId &&
-          m.fromSeller === msg.fromSeller
+          m._id === msg._id ||
+          (m.message === msg.message &&
+            m.senderId === msg.senderId &&
+            new Date(m.createdAt).getTime() ===
+              new Date(msg.createdAt).getTime())
       );
+
       if (isDuplicate) return;
 
-      // ✅ If message is from currently selected user → show in chat
+      // If message is from currently selected user → show in chat
       if (selected && msg.senderId === selected._id) {
         setMessages((prev) => [...prev, msg]);
       } else {
-        // ✅ Update unread dot for others
+        // Mark as unread if chat hasn't been opened or if it's not the current chat
         setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
       }
 
-      // ✅ If this user is not yet in user list → add them
+      // Add new user if not present
       setUsers((prevUsers) => {
         const exists = prevUsers.some((u) => u._id === msg.senderId);
         if (!exists) {
-          // 🆕 Initialize unread status when new user appears
-          setUnreadMap((prevMap) => ({ ...prevMap, [msg.senderId]: true }));
           return [
             ...prevUsers,
-            { _id: msg.senderId, name: msg.senderName || "New User" },
+            {
+              _id: msg.senderId,
+              name: msg.senderName || "New User",
+              email: msg.senderEmail || "",
+            },
           ];
         }
         return prevUsers;
@@ -123,7 +133,7 @@ const SellerUserChats = () => {
       .post("http://localhost:4000/api/chat/send", msgObj, {
         withCredentials: true,
       })
-      .catch((err) => console.error("❌ Failed to save message:", err));
+      .catch((err) => console.error("Failed to save message:", err));
   };
 
   const goBack = () => {
@@ -153,20 +163,21 @@ const SellerUserChats = () => {
               className={`relative border border-gray-300 p-2 cursor-pointer rounded mb-2 flex items-center justify-between ${
                 selectedUser?._id === user._id
                   ? "bg-primary text-white"
-                  : "hover:bg-gray-100 "
+                  : "hover:bg-gray-100"
               }`}
               onClick={() => {
                 setSelectedUser(user);
                 selectedUserRef.current = user;
-                setUnreadMap((prev) => ({ ...prev, [user._id]: false }));
               }}
             >
               <span>{user.name || user.email}</span>
-
-              {/* 🔴 Red Dot if unread */}
-              {unreadMap[user._id] && (
-                <span className="ml-2 w-3 h-3 bg-red-600 rounded-full"></span>
-              )}
+              {/* Show red dot if unread and either:
+                  - Chat has never been opened, OR
+                  - It's not the currently selected chat */}
+              {unreadMap[user._id] &&
+                (!openedChats[user._id] || selectedUser?._id !== user._id) && (
+                  <span className="ml-2 w-3 h-3 bg-red-600 rounded-full"></span>
+                )}
             </div>
           ))
         )}
@@ -198,7 +209,7 @@ const SellerUserChats = () => {
             <div className="flex flex-col space-y-2">
               {messages.map((msg, idx) => (
                 <div
-                  key={idx}
+                  key={msg._id || idx}
                   className={`flex ${
                     msg.fromSeller ? "justify-end" : "justify-start"
                   }`}
@@ -211,10 +222,39 @@ const SellerUserChats = () => {
                     }`}
                   >
                     {msg.message}
+                    <div className="text-xs opacity-70 mt-1">
+                      <div className="text-xs opacity-70 mt-1">
+                        <div className="text-xs opacity-70 mt-1">
+                          {(() => {
+                            const date = new Date(msg.createdAt || new Date());
+
+                            // Format time (2:28 PM)
+                            const timeStr = date.toLocaleTimeString("en-US", {
+                              hour: "numeric",
+                              minute: "2-digit",
+                              hour12: true,
+                            });
+
+                            // Format date (7th July)
+                            const day = date.getDate();
+                            const monthStr = date.toLocaleString("default", {
+                              month: "long",
+                            });
+                            const dayWithSuffix = `${day}${
+                              ["th", "st", "nd", "rd"][
+                                day % 100 > 10 && day % 100 < 20 ? 0 : day % 10
+                              ] || "th"
+                            }`;
+
+                            return `${timeStr}, ${dayWithSuffix} ${monthStr}`;
+                          })()}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
-              <div ref={chatEndRef}></div>
+              <div ref={chatEndRef} />
             </div>
           ) : (
             <p className="text-gray-400 text-center mt-10">

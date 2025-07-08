@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaPaperPlane, FaComments } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
+import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { io } from "socket.io-client";
 import axios from "axios";
 
@@ -25,10 +26,7 @@ const UserChat = () => {
         });
         setSenderId(res.data._id);
         senderIdRef.current = res.data._id;
-
-        // ✅ JOIN SOCKET ROOM - This was missing!
         socket.emit("join", res.data._id);
-        //console.log("👤 User joined room:", res.data._id);
       } catch (err) {
         console.error("❌ Failed to fetch user", err);
       }
@@ -49,7 +47,6 @@ const UserChat = () => {
   // Socket listener
   useEffect(() => {
     const handleMessage = (data) => {
-      console.log("📨 Message received:", data);
       const currentId = senderIdRef.current;
 
       // Only add messages relevant to this user
@@ -155,7 +152,7 @@ const UserChat = () => {
         className="fixed bottom-5 right-5 z-50 bg-primary hover:bg-primary-dull text-white p-3 rounded-full shadow-lg transition"
         onClick={toggleChat}
       >
-        <FaComments size={30} />
+        <IoChatboxEllipsesOutline size={30} />
 
         {/* 🔴 Red Dot Overlay */}
         {hasNewMessage && (
@@ -181,6 +178,31 @@ const UserChat = () => {
                 }`}
               >
                 {msg.message}
+                <div className="text-xs opacity-70 mt-1">
+                  {(() => {
+                    const date = new Date(msg.createdAt || new Date());
+
+                    // Format time (2:28 PM)
+                    const timeStr = date.toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+
+                    // Format date (7th July)
+                    const day = date.getDate();
+                    const monthStr = date.toLocaleString("default", {
+                      month: "long",
+                    });
+                    const dayWithSuffix = `${day}${
+                      ["th", "st", "nd", "rd"][
+                        day % 100 > 10 && day % 100 < 20 ? 0 : day % 10
+                      ] || "th"
+                    }`;
+
+                    return `${timeStr}, ${dayWithSuffix} ${monthStr}`;
+                  })()}
+                </div>
               </div>
             ))}
             <div ref={chatEndRef}></div>

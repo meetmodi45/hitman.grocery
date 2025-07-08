@@ -106,9 +106,7 @@ const MyOrders = () => {
                         : "text-red-500 font-medium"
                     }
                   >
-                    {order.paymentMethod === "Online"
-                      ? "✅ Paid"
-                      : "❌ Pending"}
+                    {order.paymentMethod === "Online" ? " Paid" : " Pending"}
                   </p>
                 </div>
               </div>
@@ -140,12 +138,12 @@ const MyOrders = () => {
                   </p>
                   <p
                     className={
-                      order.isPaid
-                        ? "text-primary text-xs font-medium"
-                        : "text-red-500 text-xs font-medium"
+                      order.paymentMethod === "Online"
+                        ? "text-primary font-medium"
+                        : "text-red-500 font-medium"
                     }
                   >
-                    {order.isPaid ? "Paid" : "Pending"}
+                    {order.paymentMethod === "Online" ? " Paid" : " Pending"}
                   </p>
                 </div>
               </div>

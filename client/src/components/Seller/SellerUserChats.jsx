@@ -68,28 +68,43 @@ const SellerUserChats = () => {
     const handleMessage = (msg) => {
       const selected = selectedUserRef.current;
 
+      // ⛔ Skip if duplicate
+      const isDuplicate = messages.some(
+        (m) =>
+          m.message === msg.message &&
+          m.senderId === msg.senderId &&
+          m.fromSeller === msg.fromSeller
+      );
+      if (isDuplicate) return;
+
+      // ✅ If message is from currently selected user → show in chat
       if (selected && msg.senderId === selected._id) {
-        // Add message directly to open chat
-        setMessages((prev) => {
-          const isDuplicate = prev.some(
-            (m) =>
-              m.message === msg.message &&
-              m.senderId === msg.senderId &&
-              m.fromSeller === msg.fromSeller
-          );
-          return isDuplicate ? prev : [...prev, msg];
-        });
+        setMessages((prev) => [...prev, msg]);
       } else {
-        // Mark message as unread
+        // ✅ Update unread dot for others
         setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
       }
+
+      // ✅ If this user is not yet in user list → add them
+      setUsers((prevUsers) => {
+        const exists = prevUsers.some((u) => u._id === msg.senderId);
+        if (!exists) {
+          // 🆕 Initialize unread status when new user appears
+          setUnreadMap((prevMap) => ({ ...prevMap, [msg.senderId]: true }));
+          return [
+            ...prevUsers,
+            { _id: msg.senderId, name: msg.senderName || "New User" },
+          ];
+        }
+        return prevUsers;
+      });
     };
 
     socket.on("receiveMessage", handleMessage);
     return () => {
       socket.off("receiveMessage", handleMessage);
     };
-  }, []);
+  }, [messages]);
 
   const sendMessage = () => {
     if (!message.trim() || !selectedUser) return;

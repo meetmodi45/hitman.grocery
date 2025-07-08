@@ -5,6 +5,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 const socket = io("http://localhost:4000", {
   withCredentials: true,
+  autoConnect: false,
 });
 
 const SellerUserChats = () => {
@@ -13,33 +14,113 @@ const SellerUserChats = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [unreadMap, setUnreadMap] = useState({});
-  const [openedChats, setOpenedChats] = useState({}); // Tracks which chats have been opened
   const chatEndRef = useRef(null);
   const selectedUserRef = useRef(null);
 
+  // ✅ Corrected: Join seller room using actual seller ID
   useEffect(() => {
-    socket.emit("join", "seller");
+    const connectAndJoin = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/api/users/me", {
+          withCredentials: true,
+        });
 
-    return () => {
-      socket.off("receiveMessage");
+        const sellerId = res.data._id;
+
+        if (!socket.connected) {
+          socket.connect();
+        }
+
+        socket.emit("join", sellerId);
+
+        const handleMessage = (msg) => {
+          const selected = selectedUserRef.current;
+
+          if (selected && msg.senderId === selected._id) {
+            setMessages((prev) => {
+              const isDuplicate = prev.some(
+                (m) =>
+                  m._id === msg._id ||
+                  (m.message === msg.message &&
+                    m.senderId === msg.senderId &&
+                    new Date(m.createdAt).getTime() ===
+                      new Date(msg.createdAt).getTime())
+              );
+              if (isDuplicate) return prev;
+              return [...prev, msg];
+            });
+          } else {
+            setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
+          }
+
+          setUsers((prevUsers) => {
+            const exists = prevUsers.some((u) => u._id === msg.senderId);
+            if (!exists) {
+              return [
+                ...prevUsers,
+                {
+                  _id: msg.senderId,
+                  name: msg.senderName || "New User",
+                  email: msg.senderEmail || "",
+                },
+              ];
+            }
+            return prevUsers;
+          });
+        };
+
+        socket.on("receiveMessage", handleMessage);
+
+        return () => {
+          socket.off("receiveMessage", handleMessage);
+        };
+      } catch (err) {
+        console.error("❌ Failed to fetch seller info", err);
+      }
     };
+
+    connectAndJoin();
   }, []);
 
+  // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get(
           "http://localhost:4000/api/chat/all-users",
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
         setUsers(res.data);
       } catch (err) {
         console.error("Error fetching user list", err);
       }
     };
+
     fetchUsers();
   }, []);
 
+  // Fetch unread map from DB
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:4000/api/chat/unread-status",
+          {
+            withCredentials: true,
+          }
+        );
+        setUnreadMap(res.data);
+      } catch (err) {
+        console.error("Error fetching unread map", err);
+      }
+    };
+
+    fetchUnread();
+  }, []);
+
+  // Fetch messages when a user is selected
   useEffect(() => {
     if (selectedUser?._id) {
       selectedUserRef.current = selectedUser;
@@ -52,8 +133,12 @@ const SellerUserChats = () => {
           );
           setMessages(res.data);
 
-          // Mark chat as opened and clear unread status
-          setOpenedChats((prev) => ({ ...prev, [selectedUser._id]: true }));
+          await axios.post(
+            `http://localhost:4000/api/chat/mark-read/${selectedUser._id}`,
+            {},
+            { withCredentials: true }
+          );
+
           setUnreadMap((prev) => ({ ...prev, [selectedUser._id]: false }));
         } catch (err) {
           console.error("Error fetching messages", err);
@@ -65,55 +150,7 @@ const SellerUserChats = () => {
   }, [selectedUser]);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  useEffect(() => {
-    const handleMessage = (msg) => {
-      const selected = selectedUserRef.current;
-
-      // Skip if duplicate
-      const isDuplicate = messages.some(
-        (m) =>
-          m._id === msg._id ||
-          (m.message === msg.message &&
-            m.senderId === msg.senderId &&
-            new Date(m.createdAt).getTime() ===
-              new Date(msg.createdAt).getTime())
-      );
-
-      if (isDuplicate) return;
-
-      // If message is from currently selected user → show in chat
-      if (selected && msg.senderId === selected._id) {
-        setMessages((prev) => [...prev, msg]);
-      } else {
-        // Mark as unread if chat hasn't been opened or if it's not the current chat
-        setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
-      }
-
-      // Add new user if not present
-      setUsers((prevUsers) => {
-        const exists = prevUsers.some((u) => u._id === msg.senderId);
-        if (!exists) {
-          return [
-            ...prevUsers,
-            {
-              _id: msg.senderId,
-              name: msg.senderName || "New User",
-              email: msg.senderEmail || "",
-            },
-          ];
-        }
-        return prevUsers;
-      });
-    };
-
-    socket.on("receiveMessage", handleMessage);
-    return () => {
-      socket.off("receiveMessage", handleMessage);
-    };
   }, [messages]);
 
   const sendMessage = () => {
@@ -171,13 +208,9 @@ const SellerUserChats = () => {
               }}
             >
               <span>{user.name || user.email}</span>
-              {/* Show red dot if unread and either:
-                  - Chat has never been opened, OR
-                  - It's not the currently selected chat */}
-              {unreadMap[user._id] &&
-                (!openedChats[user._id] || selectedUser?._id !== user._id) && (
-                  <span className="ml-2 w-3 h-3 bg-red-600 rounded-full"></span>
-                )}
+              {unreadMap[user._id] && (
+                <span className="ml-2 w-3 h-3 bg-red-600 rounded-full"></span>
+              )}
             </div>
           ))
         )}
@@ -223,33 +256,24 @@ const SellerUserChats = () => {
                   >
                     {msg.message}
                     <div className="text-xs opacity-70 mt-1">
-                      <div className="text-xs opacity-70 mt-1">
-                        <div className="text-xs opacity-70 mt-1">
-                          {(() => {
-                            const date = new Date(msg.createdAt || new Date());
-
-                            // Format time (2:28 PM)
-                            const timeStr = date.toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            });
-
-                            // Format date (7th July)
-                            const day = date.getDate();
-                            const monthStr = date.toLocaleString("default", {
-                              month: "long",
-                            });
-                            const dayWithSuffix = `${day}${
-                              ["th", "st", "nd", "rd"][
-                                day % 100 > 10 && day % 100 < 20 ? 0 : day % 10
-                              ] || "th"
-                            }`;
-
-                            return `${timeStr}, ${dayWithSuffix} ${monthStr}`;
-                          })()}
-                        </div>
-                      </div>
+                      {(() => {
+                        const date = new Date(msg.createdAt || new Date());
+                        const timeStr = date.toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "2-digit",
+                          hour12: true,
+                        });
+                        const day = date.getDate();
+                        const monthStr = date.toLocaleString("default", {
+                          month: "long",
+                        });
+                        const dayWithSuffix = `${day}${
+                          ["th", "st", "nd", "rd"][
+                            day % 100 > 10 && day % 100 < 20 ? 0 : day % 10
+                          ] || "th"
+                        }`;
+                        return `${timeStr}, ${dayWithSuffix} ${monthStr}`;
+                      })()}
                     </div>
                   </div>
                 </div>

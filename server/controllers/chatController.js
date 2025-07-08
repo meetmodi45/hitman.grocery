@@ -53,3 +53,36 @@ export const getMessages = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch messages" });
   }
 };
+
+// Get unread status for all users
+export const getUnreadStatus = async (req, res) => {
+  try {
+    const unreadMessages = await Message.aggregate([
+      {
+        $match: {
+          fromSeller: false,
+          isUnreadForSeller: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$senderId",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const unreadMap = unreadMessages.reduce((map, { _id }) => {
+      map[_id.toString()] = true;
+      return map;
+    }, {});
+
+    res.status(200).json(unreadMap);
+  } catch (error) {
+    console.error("Error getting unread status:", error);
+    res.status(500).json({
+      error: "Failed to get unread status",
+      details: error.message,
+    });
+  }
+};

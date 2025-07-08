@@ -16,6 +16,10 @@ const messageSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
+    isUnreadForSeller: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,

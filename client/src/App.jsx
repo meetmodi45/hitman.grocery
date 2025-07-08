@@ -20,7 +20,7 @@ import MyOrders from "./pages/MyOrders";
 import UserChat from "./components/UserChat";
 
 const App = () => {
-  const { showUserLogin, showAddressModal, user } = useAppContext();
+  const { showUserLogin, showAddressModal, user, isSeller } = useAppContext();
   const isSellerPath = useLocation().pathname.includes("seller");
   return (
     <div>

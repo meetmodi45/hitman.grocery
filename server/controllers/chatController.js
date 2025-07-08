@@ -8,9 +8,9 @@ export const getAllUsersInChat = async (req, res) => {
     const userIds = await Message.distinct("senderId");
 
     // Fetch user details for those IDs
-    const users = await User.find({ _id: { $in: userIds } }).select(
-      "-password"
-    );
+    const users = await User.find({ _id: { $in: userIds } })
+      .select("-password")
+      .sort({ createdAt: -1 });
 
     res.status(200).json(users);
   } catch (error) {

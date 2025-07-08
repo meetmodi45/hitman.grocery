@@ -14,6 +14,7 @@ const UserChat = () => {
   const [senderId, setSenderId] = useState(null);
   const chatEndRef = useRef(null);
   const senderIdRef = useRef(null);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
 
   // Fetch user ID on mount
   useEffect(() => {
@@ -62,6 +63,10 @@ const UserChat = () => {
               msg.fromSeller === data.fromSeller
           );
           if (!isDuplicate) {
+            // Show red dot only for seller messages when chat is closed
+            if (data.fromSeller && !open) {
+              setHasNewMessage(true);
+            }
             return [...prev, data];
           }
           return prev;
@@ -74,7 +79,7 @@ const UserChat = () => {
     return () => {
       socket.off("receiveMessage", handleMessage);
     };
-  }, []);
+  }, [open]);
 
   const sendMessage = () => {
     if (message.trim() && senderId) {
@@ -136,6 +141,10 @@ const UserChat = () => {
       }
     }
 
+    // Clear the red dot when chat is opened
+    if (!open) {
+      setHasNewMessage(false);
+    }
     setOpen(!open);
   };
 
@@ -147,6 +156,11 @@ const UserChat = () => {
         onClick={toggleChat}
       >
         <FaComments size={30} />
+
+        {/* 🔴 Red Dot Overlay */}
+        {hasNewMessage && (
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-600 rounded-full border-2 border-white"></span>
+        )}
       </button>
 
       {/* Chat Box */}

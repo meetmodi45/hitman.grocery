@@ -9,11 +9,11 @@ export const initSocket = (io) => {
     // 1️⃣ Join room: seller joins "seller", users join their userId
     socket.on("join", (userId) => {
       socket.join(userId); // Each user has a private room
-      if (userId === "seller") {
-        //console.log("🛒 Seller joined room");
-      } else {
-        //console.log(`👤 User ${userId} joined their private room`);
-      }
+      // if (userId === "seller") {
+      //   //console.log("🛒 Seller joined room");
+      // } else {
+      //   //console.log(`👤 User ${userId} joined their private room`);
+      // }
     });
 
     // 2️⃣ Receive and forward message

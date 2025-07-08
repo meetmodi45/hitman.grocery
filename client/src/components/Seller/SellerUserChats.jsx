@@ -12,6 +12,7 @@ const SellerUserChats = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [unreadMap, setUnreadMap] = useState({}); // 🔴 Track unread messages
   const chatEndRef = useRef(null);
   const selectedUserRef = useRef(null);
 
@@ -47,6 +48,9 @@ const SellerUserChats = () => {
             { withCredentials: true }
           );
           setMessages(res.data);
+
+          // ✅ Clear unread status
+          setUnreadMap((prev) => ({ ...prev, [selectedUser._id]: false }));
         } catch (err) {
           console.error("❌ Error fetching messages", err);
         }
@@ -63,7 +67,9 @@ const SellerUserChats = () => {
   useEffect(() => {
     const handleMessage = (msg) => {
       const selected = selectedUserRef.current;
+
       if (selected && msg.senderId === selected._id) {
+        // Add message directly to open chat
         setMessages((prev) => {
           const isDuplicate = prev.some(
             (m) =>
@@ -73,6 +79,9 @@ const SellerUserChats = () => {
           );
           return isDuplicate ? prev : [...prev, msg];
         });
+      } else {
+        // Mark message as unread
+        setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
       }
     };
 
@@ -102,7 +111,6 @@ const SellerUserChats = () => {
       .catch((err) => console.error("❌ Failed to save message:", err));
   };
 
-  // MOBILE: back to user list
   const goBack = () => {
     setSelectedUser(null);
     selectedUserRef.current = null;
@@ -127,17 +135,23 @@ const SellerUserChats = () => {
           users.map((user) => (
             <div
               key={user._id}
-              className={`p-2 cursor-pointer rounded mb-2 ${
+              className={`relative border border-gray-300 p-2 cursor-pointer rounded mb-2 flex items-center justify-between ${
                 selectedUser?._id === user._id
                   ? "bg-primary text-white"
-                  : "hover:bg-gray-100"
+                  : "hover:bg-gray-100 "
               }`}
               onClick={() => {
                 setSelectedUser(user);
                 selectedUserRef.current = user;
+                setUnreadMap((prev) => ({ ...prev, [user._id]: false }));
               }}
             >
-              {user.name || user.email}
+              <span>{user.name || user.email}</span>
+
+              {/* 🔴 Red Dot if unread */}
+              {unreadMap[user._id] && (
+                <span className="ml-2 w-3 h-3 bg-red-600 rounded-full"></span>
+              )}
             </div>
           ))
         )}
@@ -150,21 +164,18 @@ const SellerUserChats = () => {
         }`}
       >
         {selectedUser && (
-          <>
-            {/* Back button on mobile */}
-            <div className="sm:hidden flex items-center gap-2 mb-2">
-              <button
-                onClick={goBack}
-                className="text-sm text-primary hover:underline flex items-center gap-1"
-              >
-                <FaArrowLeft />
-                Back to Users
-              </button>
-              <span className="text-primary-dull font-medium text-base">
-                {selectedUser.name || selectedUser.email}
-              </span>
-            </div>
-          </>
+          <div className="sm:hidden flex items-center gap-2 mb-2">
+            <button
+              onClick={goBack}
+              className="text-sm text-primary hover:underline flex items-center gap-1"
+            >
+              <FaArrowLeft />
+              Back to Users
+            </button>
+            <span className="text-primary-dull font-medium text-base">
+              {selectedUser.name || selectedUser.email}
+            </span>
+          </div>
         )}
 
         <div className="flex-1 overflow-y-auto border rounded p-3 space-y-2 text-sm max-h-[60vh] min-h-[400px]">
@@ -197,7 +208,6 @@ const SellerUserChats = () => {
           )}
         </div>
 
-        {/* Input */}
         {selectedUser && (
           <div className="mt-3 flex items-center gap-2 border-t pt-3">
             <input

@@ -37,7 +37,7 @@ const Login = () => {
       const res = await axios.post("/otp/send", { email });
       toast.success(res.data.message);
       setOtpSent(true);
-      setCountdown(60);
+      setCountdown(15);
     } catch (err) {
       toast.error(err.response?.data?.message || "OTP Error");
     } finally {
@@ -153,7 +153,7 @@ const Login = () => {
                 className={`min-w-[110px] px-4 py-2.5 text-sm font-medium rounded-md transition ${
                   loadingOtp || countdown > 0 || !email
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-primary text-white hover:bg-primary-dark"
+                    : "bg-primary text-white hover:bg-primary-dull"
                 }`}
               >
                 {loadingOtp
@@ -175,7 +175,7 @@ const Login = () => {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 placeholder="Enter 6-digit OTP"
-                className="flex-1 px-4 py-2.5 rounded-md bg-gray-50 border border-blue-300 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-4 py-2.5 rounded-md bg-gray-50 border border-gray-300 focus:ring-primary focus:border-primary"
               />
               <button
                 type="button"
@@ -184,7 +184,7 @@ const Login = () => {
                 className={`min-w-[110px] px-4 py-2.5 text-sm font-medium rounded-md transition ${
                   loadingOtp || !otp
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-primary text-white hover:bg-primary-dull"
                 }`}
               >
                 {loadingOtp ? "Verifying..." : "Verify OTP"}

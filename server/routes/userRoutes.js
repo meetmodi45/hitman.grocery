@@ -4,6 +4,7 @@ import {
   loginUser,
   logoutUser,
   getUserProfile,
+  resetPassword,
 } from "../controllers/userController.js";
 import authUser from "../middlewares/authUser.js";
 
@@ -13,5 +14,6 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/logout", logoutUser);
 router.get("/me", authUser, getUserProfile);
+router.post("/reset-password", resetPassword);
 
 export default router;

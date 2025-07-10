@@ -43,7 +43,7 @@ app.use("/api/orders", OrderRoutes);
 app.use("/api/userAuth", authRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/chat", chatRoutes);
-app.use("/api/otp", otpRoutes); // ✅ correctly mounted
+app.use("/api/otp", otpRoutes);
 
 // Start the server and connect socket
 const startServer = async () => {

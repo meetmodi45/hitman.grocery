@@ -10,45 +10,87 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Disable scroll when modal opens
+  // OTP related
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [loadingOtp, setLoadingOtp] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => (document.body.style.overflow = "");
   }, []);
 
-  // 🧠 Handle submit
+  useEffect(() => {
+    let interval;
+    if (countdown > 0) {
+      interval = setInterval(() => setCountdown((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [countdown]);
+
+  const handleSendOtp = async () => {
+    if (!email) return toast.error("Enter email first");
+    try {
+      setLoadingOtp(true);
+      const res = await axios.post("/otp/send", { email });
+      toast.success(res.data.message);
+      setOtpSent(true);
+      setCountdown(60);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "OTP Error");
+    } finally {
+      setLoadingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp) return toast.error("Enter OTP first");
+    try {
+      setLoadingOtp(true);
+      const res = await axios.post("/otp/verify", { email, otp });
+      toast.success(res.data.message);
+      setOtpVerified(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Invalid OTP");
+    } finally {
+      setLoadingOtp(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!otpVerified)
+      return toast.error("Please verify your email via OTP first");
     try {
-      if (state === "register") {
-        const res = await axios.post("/users/register", {
-          name,
-          email,
-          password,
-        });
-        toast.success(res.data.message);
-        setUser(true);
-      } else {
-        const res = await axios.post("/users/login", { email, password });
-        toast.success(res.data.message);
-        setUser(true);
-      }
+      const endpoint =
+        state === "register" ? "/users/register" : "/users/login";
+      const payload =
+        state === "register" ? { name, email, password } : { email, password };
+      const res = await axios.post(endpoint, payload);
+      toast.success(res.data.message);
+      setUser(true);
       setShowUserLogin(false);
       setName("");
       setEmail("");
       setPassword("");
+      setOtp("");
+      setOtpSent(false);
+      setOtpVerified(false);
+      setCountdown(0);
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await axios.get("/users/logout");
-      toast.success("Logged out successfully");
-    } catch (err) {
-      toast.error("Logout failed");
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (otpSent || otpVerified) {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtp("");
+      setCountdown(0);
     }
   };
 
@@ -60,81 +102,180 @@ const Login = () => {
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
-        className="w-150 max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-5 transition-transform animate-fadeIn"
+        className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-5 animate-fadeIn"
       >
-        <h2 className="text-3xl font-semibold text-center text-gray-800">
-          <span className="text-primary">User</span>{" "}
-          {state === "login" ? "Login" : "Sign Up"}
-        </h2>
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-primary">
+            {state === "login" ? "Login" : "Sign Up"}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {state === "login"
+              ? "Welcome back! Please sign in"
+              : "Create your account to get started"}
+          </p>
+        </div>
 
         {state === "register" && (
           <div>
-            <label className="text-sm text-gray-700">Name</label>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">
+              Full Name
+            </label>
             <input
+              type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm text-gray-800"
-              type="text"
+              className="w-full px-4 py-2.5 rounded-md bg-gray-50 border border-gray-300 focus:ring-primary focus:border-primary"
               placeholder="Enter your name"
               required
             />
           </div>
         )}
 
-        <div>
-          <label className="text-sm text-gray-700">Email</label>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm text-gray-800"
-            type="email"
-            placeholder="Enter your email"
-            required
-          />
+        {/* Email and OTP */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">
+            Email Address
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
+              className="flex-1 px-4 py-2.5 rounded-md bg-gray-50 border border-gray-300 focus:ring-primary focus:border-primary"
+              placeholder="Enter email"
+              required
+            />
+            {!otpVerified && (
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={loadingOtp || countdown > 0 || !email}
+                className={`min-w-[110px] px-4 py-2.5 text-sm font-medium rounded-md transition ${
+                  loadingOtp || countdown > 0 || !email
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-primary text-white hover:bg-primary-dark"
+                }`}
+              >
+                {loadingOtp
+                  ? "Sending..."
+                  : countdown > 0
+                  ? `Wait ${countdown}s`
+                  : otpSent
+                  ? "Resend OTP"
+                  : "Send OTP"}
+              </button>
+            )}
+          </div>
+
+          {otpSent && !otpVerified && (
+            <div className="flex gap-2 mt-2">
+              <input
+                type="text"
+                maxLength="6"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                className="flex-1 px-4 py-2.5 rounded-md bg-gray-50 border border-blue-300 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <button
+                type="button"
+                onClick={handleVerifyOtp}
+                disabled={loadingOtp || !otp}
+                className={`min-w-[110px] px-4 py-2.5 text-sm font-medium rounded-md transition ${
+                  loadingOtp || !otp
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+              >
+                {loadingOtp ? "Verifying..." : "Verify OTP"}
+              </button>
+            </div>
+          )}
+
+          {otpVerified && (
+            <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+              <svg
+                className="w-4 h-4 text-green-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Email verified
+            </p>
+          )}
         </div>
 
+        {/* Password */}
         <div>
-          <label className="text-sm text-gray-700">Password</label>
+          <label className="text-sm font-medium text-gray-700 mb-1 block">
+            Password
+          </label>
           <input
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary text-sm text-gray-800"
-            type="password"
-            placeholder="Enter your password"
+            className="w-full px-4 py-2.5 rounded-md bg-gray-50 border border-gray-300 focus:ring-primary focus:border-primary"
+            placeholder="Enter password"
             required
           />
         </div>
 
-        <p className="text-sm text-center text-gray-500">
-          {state === "register" ? (
-            <>
-              Already have an account?{" "}
-              <span
-                onClick={() => setState("login")}
-                className="text-primary cursor-pointer hover:underline"
-              >
-                Login here
-              </span>
-            </>
-          ) : (
-            <>
-              Don't have an account?{" "}
-              <span
-                onClick={() => setState("register")}
-                className="text-primary cursor-pointer hover:underline"
-              >
-                Sign up here
-              </span>
-            </>
-          )}
-        </p>
-
+        {/* Submit */}
         <button
           type="submit"
-          className="w-full py-2 rounded-full bg-primary hover:bg-primary-dark text-white font-medium transition-all duration-200"
+          disabled={!otpVerified}
+          className={`w-full py-2.5 rounded-md text-sm font-medium transition ${
+            !otpVerified
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-primary text-white hover:bg-primary-dark"
+          }`}
         >
           {state === "register" ? "Create Account" : "Login"}
         </button>
+
+        {/* Toggle */}
+        <p className="text-sm text-center text-gray-500 pt-2">
+          {state === "register" ? (
+            <>
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setState("login");
+                  setOtpSent(false);
+                  setOtpVerified(false);
+                  setOtp("");
+                  setCountdown(0);
+                }}
+                className="text-primary font-medium hover:underline"
+              >
+                Sign In
+              </button>
+            </>
+          ) : (
+            <>
+              Don’t have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setState("register");
+                  setOtpSent(false);
+                  setOtpVerified(false);
+                  setOtp("");
+                  setCountdown(0);
+                }}
+                className="text-primary font-medium hover:underline"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
+        </p>
       </form>
     </div>
   );

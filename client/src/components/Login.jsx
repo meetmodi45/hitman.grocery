@@ -221,12 +221,12 @@ const Login = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                className="w-full sm:flex-1 px-3 py-2 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                 placeholder="Enter your email"
                 required
               />
@@ -235,7 +235,7 @@ const Login = () => {
                   type="button"
                   onClick={handleSendOtp}
                   disabled={loadingOtp || countdown > 0 || !formData.email}
-                  className={`px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 whitespace-nowrap ${
+                  className={`px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200 whitespace-nowrap w-full sm:w-auto ${
                     loadingOtp || countdown > 0 || !formData.email
                       ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                       : "bg-primary text-white hover:bg-primary-dark shadow-md hover:shadow-lg"

@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server as socketIO } from "socket.io";
 
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import sellerRoutes from "./routes/sellerRoutes.js";
@@ -28,6 +33,8 @@ const server = http.createServer(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 const allowedOrigins = ["http://localhost:5173"];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
@@ -45,6 +52,9 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/otp", otpRoutes);
 
+app.use((req, res) => {
+  res.status(404).render("404", { path: req.originalUrl });
+});
 // Start the server and connect socket
 const startServer = async () => {
   await connectDB();

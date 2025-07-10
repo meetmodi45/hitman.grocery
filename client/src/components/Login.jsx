@@ -57,7 +57,7 @@ const Login = () => {
       const res = await axios.post("/otp/send", { email: formData.email });
       toast.success(res.data.message);
       setOtpSent(true);
-      setCountdown(60);
+      setCountdown(30);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to send OTP");
     } finally {
@@ -193,8 +193,8 @@ const Login = () => {
       >
         {/* Simplified Header */}
         <div className="bg-primary p-5 text-white text-center">
-          <h2 className="text-xl font-bold">{getTitle()}</h2>
-          <p className="text-white/90 mt-1 text-sm">{getSubtitle()}</p>
+          <h2 className="text-3xl font-bold">{getTitle()}</h2>
+          <p className="text-white/90 mt-0.5 text-lg">{getSubtitle()}</p>
         </div>
 
         {/* Form */}
@@ -380,7 +380,7 @@ const Login = () => {
             disabled={loading || (currentView !== "login" && !otpVerified)}
             className={`w-full py-2.5 rounded-lg font-medium transition-all duration-200 mt-4 ${
               loading || (currentView !== "login" && !otpVerified)
-                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                ? "bg-primary text-white hover:bg-primary-dark shadow-md hover:shadow-lg cursor-pointer"
                 : "bg-primary text-white hover:bg-primary-dark shadow-md hover:shadow-lg"
             }`}
           >

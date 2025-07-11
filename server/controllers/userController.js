@@ -60,6 +60,7 @@ export const loginUser = async (req, res) => {
       path: "/",
     });
     console.log("Success");
+    console.log(" Token:", token);
     res.status(200).json({ message: "User logged in successfully" });
   } catch (err) {
     console.log(err);

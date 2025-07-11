@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { io } from "socket.io-client";
-import axios from "axios";
+import axios from "../utils/axiosInstance";
 
 const socket = io(import.meta.env.VITE_BACKEND_URL, {
   withCredentials: true,

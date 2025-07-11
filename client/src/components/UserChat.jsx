@@ -4,7 +4,7 @@ import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { io } from "socket.io-client";
 import axios from "../utils/axiosInstance";
 
-const socket = io(import.meta.env.VITE_BACKEND_URL, {
+const socket = io("https://hitman-grocery-backend.onrender.com", {
   withCredentials: true,
 });
 

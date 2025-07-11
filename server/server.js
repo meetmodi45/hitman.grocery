@@ -36,7 +36,7 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = ["https://hitman-grocery.vercel.app/"];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // Basic test route
@@ -65,7 +65,7 @@ const startServer = async () => {
 
   const io = new socketIO(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "https://hitman-grocery.vercel.app/",
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },

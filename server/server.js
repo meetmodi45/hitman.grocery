@@ -26,7 +26,7 @@ import { initSocket } from "./sockets/chatSocket.js";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 10000;
 const server = http.createServer(app);
 
 // Middlewares
@@ -36,8 +36,24 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-const allowedOrigins = ["https://hitman-grocery.vercel.app/"];
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+// ✅ Allow frontend from localhost & Vercel
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hitman-grocery.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // Basic test route
 app.get("/", (req, res) => res.send("API is working"));
@@ -52,9 +68,11 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/otp", otpRoutes);
 
+// 404 page
 app.use((req, res) => {
   res.status(404).render("404", { path: req.originalUrl });
 });
+
 // Start the server and connect socket
 const startServer = async () => {
   await connectDB();
@@ -65,7 +83,7 @@ const startServer = async () => {
 
   const io = new socketIO(server, {
     cors: {
-      origin: "https://hitman-grocery.vercel.app/",
+      origin: allowedOrigins,
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },

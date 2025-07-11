@@ -122,10 +122,13 @@ const Login = () => {
           );
           break;
         case "login":
-          res = await axios.post("http://localhost:4000/api/users/login", {
-            email: formData.email,
-            password: formData.password,
-          });
+          res = await axios.post(
+            "https://hitman-grocery-backend.onrender.com/api/users/login",
+            {
+              email: formData.email,
+              password: formData.password,
+            }
+          );
           break;
         case "forgot":
           res = await axios.post(

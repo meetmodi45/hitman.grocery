@@ -25,8 +25,8 @@ export const registerUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: process.env.NODE_ENV === "production", // ✅ Only secure on prod
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ✅ Safe for localhost
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
@@ -53,8 +53,8 @@ export const loginUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: process.env.NODE_ENV === "production", // ✅ Only secure on prod
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ✅ Safe for localhost
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });

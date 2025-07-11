@@ -2,7 +2,7 @@ import React from "react";
 import MainBanner from "../components/MainBanner";
 import Categories from "../components/Categories";
 import BestSellers from "../components/BestSellers";
-import BottomBanner from "../components/Bottombanner";
+import BottomBanner from "../components/BottomBanner";
 import Subscribe from "../components/Subscribe";
 
 const Home = () => {

@@ -10,9 +10,12 @@ const ProtectedSellerRoute = ({ children }) => {
   useEffect(() => {
     const verifySeller = async () => {
       try {
-        const res = await axios.get("/seller/check-auth", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          "https://hitman-grocery-backend.onrender.com/api/seller/check-auth",
+          {
+            withCredentials: true,
+          }
+        );
 
         if (res.status === 200) {
           setIsSeller(true);

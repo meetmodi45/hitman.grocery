@@ -40,7 +40,7 @@ const Cart = () => {
     if (paymentMethod === "COD") {
       try {
         await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
+          `https://hitman-grocery-backend.onrender.com/api/orders`,
           {
             products: cartItems.map((item) => ({
               product: item._id,
@@ -81,7 +81,7 @@ const Cart = () => {
         }
 
         const res = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/payment/razorpay`,
+          `https://hitman-grocery-backend.onrender.com/api/payment/razorpay`,
           { totalAmount: finalAmount },
           { withCredentials: true }
         );
@@ -98,7 +98,7 @@ const Cart = () => {
           handler: async function (response) {
             try {
               await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
+                `https://hitman-grocery-backend.onrender.com/api/orders`,
                 {
                   products: cartItems.map((item) => ({
                     product: item._id,

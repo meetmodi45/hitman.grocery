@@ -22,7 +22,10 @@ const SellerLogin = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("/seller/login", form);
+      const res = await axios.post(
+        "https://hitman-grocery-backend.onrender.com/api/seller/login",
+        form
+      );
       toast.success(res.data.message || "Seller Logged In");
       setIsSeller(true);
       navigate("/seller");

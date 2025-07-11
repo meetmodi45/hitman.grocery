@@ -24,9 +24,12 @@ const Navbar = () => {
   }, [searchQuery, navigate]);
   const handleLogout = async () => {
     try {
-      const response = await axios.get("/users/logout", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        "https://hitman-grocery-backend.onrender.com/api/users/logout",
+        {
+          withCredentials: true,
+        }
+      );
       if (response.status === 200) {
         setUser(false);
         navigate("/");

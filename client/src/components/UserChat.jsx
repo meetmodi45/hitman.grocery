@@ -21,9 +21,12 @@ const UserChat = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/users/me", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          "https://hitman-grocery-backend.onrender.com/api/users/me",
+          {
+            withCredentials: true,
+          }
+        );
         setSenderId(res.data._id);
         senderIdRef.current = res.data._id;
         socket.emit("join", res.data._id);
@@ -97,9 +100,13 @@ const UserChat = () => {
 
       // Save to database
       axios
-        .post(`${import.meta.env.VITE_BACKEND_URL}/api/chat/send`, msgObj, {
-          withCredentials: true,
-        })
+        .post(
+          `https://hitman-grocery-backend.onrender.com/api/chat/send`,
+          msgObj,
+          {
+            withCredentials: true,
+          }
+        )
         .catch((err) => {
           console.error("❌ Failed to save message to DB:", err);
         });
@@ -114,7 +121,7 @@ const UserChat = () => {
     if (!open && senderId) {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/chat/${senderId}`,
+          `https://hitman-grocery-backend.onrender.com/api/chat/${senderId}`,
           { withCredentials: true }
         );
 

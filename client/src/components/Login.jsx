@@ -54,7 +54,10 @@ const Login = () => {
 
     try {
       setLoadingOtp(true);
-      const res = await axios.post("/otp/send", { email: formData.email });
+      const res = await axios.post(
+        "https://hitman-grocery-backend.onrender.com/api/otp/send",
+        { email: formData.email }
+      );
       toast.success(res.data.message);
       setOtpSent(true);
       setCountdown(30);
@@ -70,10 +73,13 @@ const Login = () => {
 
     try {
       setLoadingOtp(true);
-      const res = await axios.post("/otp/verify", {
-        email: formData.email,
-        otp,
-      });
+      const res = await axios.post(
+        "https://hitman-grocery-backend.onrender.com/api/otp/verify",
+        {
+          email: formData.email,
+          otp,
+        }
+      );
       toast.success(res.data.message);
       setOtpVerified(true);
     } catch (err) {
@@ -106,23 +112,29 @@ const Login = () => {
 
       switch (currentView) {
         case "register":
-          res = await axios.post("/users/register", {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-          });
+          res = await axios.post(
+            "https://hitman-grocery-backend.onrender.com/api/users/register",
+            {
+              name: formData.name,
+              email: formData.email,
+              password: formData.password,
+            }
+          );
           break;
         case "login":
-          res = await axios.post("/users/login", {
+          res = await axios.post("http://localhost:4000/api/users/login", {
             email: formData.email,
             password: formData.password,
           });
           break;
         case "forgot":
-          res = await axios.post("/users/reset-password", {
-            email: formData.email,
-            newPassword: formData.newPassword,
-          });
+          res = await axios.post(
+            "https://hitman-grocery-backend.onrender.com/api/users/reset-password",
+            {
+              email: formData.email,
+              newPassword: formData.newPassword,
+            }
+          );
           toast.success(res.data.message);
           setCurrentView("login");
           resetForm();

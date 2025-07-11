@@ -94,9 +94,12 @@ const Seller = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get("/seller/logout", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        "https://hitman-grocery-backend.onrender.com/api/seller/logout",
+        {
+          withCredentials: true,
+        }
+      );
       if (response.status === 200) {
         setIsSeller(false);
         navigate("/");

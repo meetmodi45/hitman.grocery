@@ -18,8 +18,11 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        // const res = await axios.get(
+        //   `${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`
+        // );
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`
+          `https://hitman-grocery-backend.onrender.com/api/products/${productId}`
         );
         const data = res.data;
         setProduct(data);

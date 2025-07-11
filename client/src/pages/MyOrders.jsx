@@ -9,7 +9,7 @@ const MyOrders = () => {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/orders/my`,
+          `https://hitman-grocery-backend.onrender.com/api/orders/my`,
           {
             withCredentials: true,
           }

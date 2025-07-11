@@ -19,7 +19,7 @@ export const AppContextProvider = ({ children }) => {
     const checkLogin = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/userAuth/profile`,
+          `https://hitman-grocery-backend.onrender.com/api/userAuth/profile`,
           {
             withCredentials: true,
           }
@@ -61,7 +61,7 @@ export const AppContextProvider = ({ children }) => {
       setLoadingProducts(true);
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/products`
+          `https://hitman-grocery-backend.onrender.com/api/products`
         );
         setProducts(res.data.products || []);
         setProductError(null);

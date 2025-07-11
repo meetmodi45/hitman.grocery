@@ -20,7 +20,10 @@ const BestSellers = () => {
   useEffect(() => {
     const fetchBestSellers = async () => {
       try {
-        const res = await axios.get("products/bestsellers");
+        const res = await axios.get(
+          `https://hitman-grocery-backend.onrender.com/api/products/bestsellers`
+        );
+
         setBestSellers(res.data);
       } catch (err) {
         setError("Failed to load best sellers");

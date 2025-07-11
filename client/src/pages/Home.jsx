@@ -1,6 +1,6 @@
 import React from "react";
 import MainBanner from "../components/MainBanner";
-import Categories from "../components/categories";
+import Categories from "../components/Categories";
 import BestSellers from "../components/BestSellers";
 import BottomBanner from "../components/Bottombanner";
 import Subscribe from "../components/Subscribe";

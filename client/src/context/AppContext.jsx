@@ -19,7 +19,7 @@ export const AppContextProvider = ({ children }) => {
     const checkLogin = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4000/api/userAuth/profile",
+          `${import.meta.env.VITE_BACKEND_URL}/api/userAuth/profile`,
           {
             withCredentials: true,
           }
@@ -60,7 +60,9 @@ export const AppContextProvider = ({ children }) => {
     const fetchProducts = async () => {
       setLoadingProducts(true);
       try {
-        const res = await axios.get("http://localhost:4000/api/products");
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/products`
+        );
         setProducts(res.data.products || []);
         setProductError(null);
       } catch (error) {

@@ -4,7 +4,7 @@ import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const socket = io("http://localhost:4000", {
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
   withCredentials: true,
 });
 
@@ -97,7 +97,7 @@ const UserChat = () => {
 
       // Save to database
       axios
-        .post("http://localhost:4000/api/chat/send", msgObj, {
+        .post(`${import.meta.env.VITE_BACKEND_URL}/api/chat/send`, msgObj, {
           withCredentials: true,
         })
         .catch((err) => {
@@ -114,7 +114,7 @@ const UserChat = () => {
     if (!open && senderId) {
       try {
         const res = await axios.get(
-          `http://localhost:4000/api/chat/${senderId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/chat/${senderId}`,
           { withCredentials: true }
         );
 

@@ -40,7 +40,7 @@ const Cart = () => {
     if (paymentMethod === "COD") {
       try {
         await axios.post(
-          "http://localhost:4000/api/orders",
+          `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
           {
             products: cartItems.map((item) => ({
               product: item._id,
@@ -81,7 +81,7 @@ const Cart = () => {
         }
 
         const res = await axios.post(
-          "http://localhost:4000/api/payment/razorpay",
+          `${import.meta.env.VITE_BACKEND_URL}/api/payment/razorpay`,
           { totalAmount: finalAmount },
           { withCredentials: true }
         );
@@ -98,7 +98,7 @@ const Cart = () => {
           handler: async function (response) {
             try {
               await axios.post(
-                "http://localhost:4000/api/orders",
+                `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
                 {
                   products: cartItems.map((item) => ({
                     product: item._id,

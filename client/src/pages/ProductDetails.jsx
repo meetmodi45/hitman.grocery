@@ -19,7 +19,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:4000/api/products/${productId}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`
         );
         const data = res.data;
         setProduct(data);

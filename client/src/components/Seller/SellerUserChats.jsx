@@ -3,7 +3,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { FaArrowLeft } from "react-icons/fa";
 
-const socket = io("http://localhost:4000", {
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
   withCredentials: true,
   autoConnect: false,
 });
@@ -21,9 +21,12 @@ const SellerUserChats = () => {
   useEffect(() => {
     const connectAndJoin = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/users/me", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/me`,
+          {
+            withCredentials: true,
+          }
+        );
 
         const sellerId = res.data._id;
 
@@ -87,7 +90,7 @@ const SellerUserChats = () => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4000/api/chat/all-users",
+          `${import.meta.env.VITE_BACKEND_URL}/api/chat/all-users`,
           {
             withCredentials: true,
           }
@@ -106,7 +109,7 @@ const SellerUserChats = () => {
     const fetchUnread = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4000/api/chat/unread-status",
+          `${import.meta.env.VITE_BACKEND_URL}/api/chat/unread-status`,
           {
             withCredentials: true,
           }
@@ -128,13 +131,15 @@ const SellerUserChats = () => {
       const fetchMessages = async () => {
         try {
           const res = await axios.get(
-            `http://localhost:4000/api/chat/${selectedUser._id}`,
+            `${import.meta.env.VITE_BACKEND_URL}/api/chat/${selectedUser._id}`,
             { withCredentials: true }
           );
           setMessages(res.data);
 
           await axios.post(
-            `http://localhost:4000/api/chat/mark-read/${selectedUser._id}`,
+            `${import.meta.env.VITE_BACKEND_URL}/api/chat/mark-read/${
+              selectedUser._id
+            }`,
             {},
             { withCredentials: true }
           );
@@ -167,7 +172,7 @@ const SellerUserChats = () => {
     setMessage("");
 
     axios
-      .post("http://localhost:4000/api/chat/send", msgObj, {
+      .post(`${import.meta.env.VITE_BACKEND_URL}/api/chat/send`, msgObj, {
         withCredentials: true,
       })
       .catch((err) => console.error("Failed to save message:", err));

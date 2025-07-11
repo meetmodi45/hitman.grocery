@@ -29,10 +29,13 @@ const AddItems = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:4000/api/seller/add-product", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/seller/add-product`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {

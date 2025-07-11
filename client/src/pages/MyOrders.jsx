@@ -8,9 +8,12 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/orders/my", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/orders/my`,
+          {
+            withCredentials: true,
+          }
+        );
         setOrders(res.data.orders || []);
       } catch (err) {
         console.error("Failed to fetch orders:", err.message);

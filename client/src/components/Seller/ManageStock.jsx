@@ -9,7 +9,9 @@ const ManageStock = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("/api/seller/products");
+        const res = await axios.get(
+          "https://hitman-grocery-backend.onrender.com/api/seller/products"
+        );
         //console.log("👉 Backend Response:", res.data);
         setProducts(res.data);
       } catch (err) {
@@ -68,10 +70,13 @@ const ProductRow = ({ product }) => {
 
   const updateProduct = async () => {
     try {
-      await axios.put(`/api/seller/update/${product._id}`, {
-        offerPrice: Number(price),
-        inStock,
-      });
+      await axios.put(
+        `https://hitman-grocery-backend.onrender.com/api/seller/update/${product._id}`,
+        {
+          offerPrice: Number(price),
+          inStock,
+        }
+      );
       toast.success(`Updated "${product.name}"`);
     } catch {
       toast.error("Update failed");
@@ -105,10 +110,13 @@ const ProductRow = ({ product }) => {
     const newVal = !inStock;
     setInStock(newVal);
     try {
-      await axios.put(`/api/seller/update/${product._id}`, {
-        offerPrice: Number(price),
-        inStock: newVal,
-      });
+      await axios.put(
+        `https://hitman-grocery-backend.onrender.com/api/seller/update/${product._id}`,
+        {
+          offerPrice: Number(price),
+          inStock: newVal,
+        }
+      );
       toast.success(`Stock updated for "${product.name}"`);
     } catch {
       toast.error("Failed to update stock");

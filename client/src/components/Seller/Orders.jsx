@@ -8,7 +8,9 @@ const SellerOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("/orders/all");
+        const res = await axios.get(
+          "https://hitman-grocery-backend.onrender.com/api/orders/all"
+        );
         setOrders(res.data.orders || []);
       } catch (err) {
         console.error("Failed to fetch seller orders:", err.message);

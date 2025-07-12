@@ -22,7 +22,7 @@ const SellerUserChats = () => {
     const connectAndJoin = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/users/me`,
+          `https://hitman-grocery-backend.onrender.com/api/users/me`,
           {
             withCredentials: true,
           }
@@ -90,7 +90,7 @@ const SellerUserChats = () => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/chat/all-users`,
+          `https://hitman-grocery-backend.onrender.com/api/chat/all-users`,
           {
             withCredentials: true,
           }
@@ -109,7 +109,7 @@ const SellerUserChats = () => {
     const fetchUnread = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/chat/unread-status`,
+          `https://hitman-grocery-backend.onrender.com/api/chat/unread-status`,
           {
             withCredentials: true,
           }
@@ -131,15 +131,13 @@ const SellerUserChats = () => {
       const fetchMessages = async () => {
         try {
           const res = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/chat/${selectedUser._id}`,
+            `https://hitman-grocery-backend.onrender.com/api/chat/${selectedUser._id}`,
             { withCredentials: true }
           );
           setMessages(res.data);
 
           await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/api/chat/mark-read/${
-              selectedUser._id
-            }`,
+            `https://hitman-grocery-backend.onrender.com/api/chat/mark-read/${selectedUser._id}`,
             {},
             { withCredentials: true }
           );
@@ -172,9 +170,13 @@ const SellerUserChats = () => {
     setMessage("");
 
     axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/api/chat/send`, msgObj, {
-        withCredentials: true,
-      })
+      .post(
+        `https://hitman-grocery-backend.onrender.com/api/chat/send`,
+        msgObj,
+        {
+          withCredentials: true,
+        }
+      )
       .catch((err) => console.error("Failed to save message:", err));
   };
 

@@ -30,7 +30,7 @@ const AddItems = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/seller/add-product`,
+        `https://hitman-grocery-backend.onrender.com/api/seller/add-product`,
         {
           method: "POST",
           body: formData,

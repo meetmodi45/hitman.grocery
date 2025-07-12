@@ -39,6 +39,7 @@ export const loginSeller = async (req, res) => {
 
 // SELLER LOGOUT
 export const logoutSeller = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   res.clearCookie("sellerToken", {
     httpOnly: true,
     secure: isProduction,

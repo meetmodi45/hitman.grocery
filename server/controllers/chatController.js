@@ -28,8 +28,16 @@ export const sendMessage = async (req, res) => {
   }
 
   try {
-    const newMsg = new Message({ senderId, message, fromSeller });
+    const newMsg = new Message({
+      senderId,
+      message,
+      fromSeller,
+      // Set unread status correctly - only user messages are unread for seller
+      isUnreadForSeller: !fromSeller,
+    });
+
     await newMsg.save();
+    console.log("💾 Message saved to DB:", newMsg);
     res.status(201).json(newMsg);
   } catch (error) {
     console.error("Error saving message:", error);
@@ -84,5 +92,23 @@ export const getUnreadStatus = async (req, res) => {
       error: "Failed to get unread status",
       details: error.message,
     });
+  }
+};
+
+// Mark messages as read
+export const markMessagesAsRead = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    await Message.updateMany(
+      { senderId: userId, fromSeller: false, isUnreadForSeller: true },
+      { $set: { isUnreadForSeller: false } }
+    );
+
+    console.log(`✅ Marked messages as read for user ${userId}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error marking messages as read", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

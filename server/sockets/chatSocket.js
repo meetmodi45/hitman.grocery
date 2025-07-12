@@ -4,36 +4,46 @@ export const initSocket = (io) => {
   ioInstance = io;
 
   io.on("connection", (socket) => {
-    // console.log("🟢 Socket connected:", socket.id);
+    console.log("🟢 Socket connected:", socket.id);
 
-    // 1️⃣ Join room: seller joins "seller", users join their userId
+    // Join room: seller joins "seller" room, users join their userId room
     socket.on("join", (userId) => {
-      socket.join(userId); // Each user has a private room
-      // if (userId === "seller") {
-      //   //console.log("🛒 Seller joined room");
-      // } else {
-      //   //console.log(`👤 User ${userId} joined their private room`);
-      // }
+      socket.join(userId);
+      console.log(`👤 User/Seller ${userId} joined room: ${userId}`);
+
+      // Special handling for seller
+      if (userId === "seller") {
+        socket.join("seller");
+        console.log("🛒 Seller joined seller room");
+      }
     });
 
-    // 2️⃣ Receive and forward message
+    // Receive and forward message
     socket.on("sendMessage", (data) => {
       const { senderId, message, fromSeller } = data;
 
-      // Save to DB (optional here or via REST API — depends on flow)
-      // Forward to correct recipient:
+      console.log("📨 Socket received message:", data);
+
+      // Forward to correct recipient
       if (fromSeller) {
-        // Seller sending to a user
+        // Seller sending to a specific user
+        console.log(`📤 Seller sending to user ${senderId}`);
         io.to(senderId).emit("receiveMessage", data);
       } else {
         // User sending to seller
+        console.log(`📤 User ${senderId} sending to seller`);
         io.to("seller").emit("receiveMessage", data);
-        io.to(senderId).emit("receiveMessage", data); // Echo back to user
+        // Also send back to the user who sent it (for UI consistency)
+        io.to(senderId).emit("receiveMessage", data);
       }
     });
 
     socket.on("disconnect", () => {
-      //console.log("🔌 Socket disconnected:", socket.id);
+      console.log("🔌 Socket disconnected:", socket.id);
+    });
+
+    socket.on("error", (error) => {
+      console.error("❌ Socket error:", error);
     });
   });
 };

@@ -3,9 +3,9 @@ import {
   sendMessage,
   getMessages,
   getAllUsersInChat,
-  getUnreadStatus, // We'll add this new controller
+  getUnreadStatus,
+  markMessagesAsRead,
 } from "../controllers/chatController.js";
-import Message from "../models/Message.js";
 
 const router = express.Router();
 
@@ -22,18 +22,6 @@ router.post("/send", sendMessage);
 router.get("/:senderId", getMessages);
 
 // POST /api/chat/mark-read/:userId
-router.post("/mark-read/:userId", async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    await Message.updateMany(
-      { senderId: userId, fromSeller: false, isUnreadForSeller: true },
-      { $set: { isUnreadForSeller: false } }
-    );
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error marking messages as read", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+router.post("/mark-read/:userId", markMessagesAsRead);
 
 export default router;

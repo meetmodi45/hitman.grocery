@@ -3,9 +3,8 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { FaArrowLeft } from "react-icons/fa";
 
-const socket = io(import.meta.env.VITE_BACKEND_URL, {
+const socket = io("https://hitman-grocery-backend.onrender.com", {
   withCredentials: true,
-  autoConnect: false,
 });
 
 const SellerUserChats = () => {
@@ -14,10 +13,101 @@ const SellerUserChats = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [unreadMap, setUnreadMap] = useState({});
+  const [isConnected, setIsConnected] = useState(false);
+  const [sellerId, setSellerId] = useState(null);
   const chatEndRef = useRef(null);
   const selectedUserRef = useRef(null);
+  const currentChatRoom = useRef(null);
 
-  // ✅ Corrected: Join seller room using actual seller ID
+  // Socket connection handlers
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("🟢 Seller socket connected");
+      setIsConnected(true);
+
+      // Join seller room when connected
+      socket.emit("join", "seller");
+      if (sellerId) {
+        socket.emit("join", sellerId);
+      }
+    };
+
+    const handleDisconnect = () => {
+      console.log("🔴 Seller socket disconnected");
+      setIsConnected(false);
+    };
+
+    const handleError = (error) => {
+      console.error("❌ Seller socket error:", error);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("error", handleError);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("error", handleError);
+    };
+  }, [sellerId]);
+
+  // Single message handler that persists throughout component lifecycle
+  useEffect(() => {
+    const handleMessage = (msg) => {
+      console.log("📨 Seller received message:", msg);
+
+      const selected = selectedUserRef.current;
+
+      if (selected && msg.senderId === selected._id) {
+        // Message is for currently selected user
+        setMessages((prev) => {
+          const isDuplicate = prev.some(
+            (m) =>
+              m._id === msg._id ||
+              (m.message === msg.message &&
+                m.senderId === msg.senderId &&
+                m.fromSeller === msg.fromSeller &&
+                Math.abs(
+                  new Date(m.createdAt || new Date()) -
+                    new Date(msg.createdAt || new Date())
+                ) < 2000)
+          );
+          if (isDuplicate) return prev;
+          return [...prev, msg];
+        });
+      } else if (!msg.fromSeller) {
+        // Message from user, mark as unread if not currently selected
+        setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
+      }
+
+      // Add new user to list if they don't exist
+      if (!msg.fromSeller) {
+        setUsers((prevUsers) => {
+          const exists = prevUsers.some((u) => u._id === msg.senderId);
+          if (!exists) {
+            return [
+              ...prevUsers,
+              {
+                _id: msg.senderId,
+                name: msg.senderName || "New User",
+                email: msg.senderEmail || "",
+              },
+            ];
+          }
+          return prevUsers;
+        });
+      }
+    };
+
+    socket.on("receiveMessage", handleMessage);
+
+    return () => {
+      socket.off("receiveMessage", handleMessage);
+    };
+  }, []); // Empty dependency array - this handler should persist
+
+  // Fetch seller info and setup socket
   useEffect(() => {
     const connectAndJoin = async () => {
       try {
@@ -28,55 +118,14 @@ const SellerUserChats = () => {
           }
         );
 
-        const sellerId = res.data._id;
+        const sellerUserId = res.data._id;
+        setSellerId(sellerUserId);
 
-        if (!socket.connected) {
-          socket.connect();
-        }
+        // Join seller room and seller's user ID room
+        socket.emit("join", "seller");
+        socket.emit("join", sellerUserId);
 
-        socket.emit("join", sellerId);
-
-        const handleMessage = (msg) => {
-          const selected = selectedUserRef.current;
-
-          if (selected && msg.senderId === selected._id) {
-            setMessages((prev) => {
-              const isDuplicate = prev.some(
-                (m) =>
-                  m._id === msg._id ||
-                  (m.message === msg.message &&
-                    m.senderId === msg.senderId &&
-                    new Date(m.createdAt).getTime() ===
-                      new Date(msg.createdAt).getTime())
-              );
-              if (isDuplicate) return prev;
-              return [...prev, msg];
-            });
-          } else {
-            setUnreadMap((prev) => ({ ...prev, [msg.senderId]: true }));
-          }
-
-          setUsers((prevUsers) => {
-            const exists = prevUsers.some((u) => u._id === msg.senderId);
-            if (!exists) {
-              return [
-                ...prevUsers,
-                {
-                  _id: msg.senderId,
-                  name: msg.senderName || "New User",
-                  email: msg.senderEmail || "",
-                },
-              ];
-            }
-            return prevUsers;
-          });
-        };
-
-        socket.on("receiveMessage", handleMessage);
-
-        return () => {
-          socket.off("receiveMessage", handleMessage);
-        };
+        console.log("🛒 Seller joined rooms: seller, " + sellerUserId);
       } catch (err) {
         console.error("❌ Failed to fetch seller info", err);
       }
@@ -123,10 +172,22 @@ const SellerUserChats = () => {
     fetchUnread();
   }, []);
 
-  // Fetch messages when a user is selected
+  // Handle user selection and chat room management
   useEffect(() => {
     if (selectedUser?._id) {
       selectedUserRef.current = selectedUser;
+
+      // Leave previous chat room if exists
+      if (currentChatRoom.current) {
+        socket.emit("leave", currentChatRoom.current);
+        console.log(`🚪 Seller left room: ${currentChatRoom.current}`);
+      }
+
+      // Join new chat room
+      const chatRoom = `chat_${selectedUser._id}`;
+      socket.emit("join", chatRoom);
+      currentChatRoom.current = chatRoom;
+      console.log(`🚪 Seller joined room: ${chatRoom}`);
 
       const fetchMessages = async () => {
         try {
@@ -136,6 +197,7 @@ const SellerUserChats = () => {
           );
           setMessages(res.data);
 
+          // Mark messages as read
           await axios.post(
             `https://hitman-grocery-backend.onrender.com/api/chat/mark-read/${selectedUser._id}`,
             {},
@@ -163,7 +225,10 @@ const SellerUserChats = () => {
       senderId: selectedUser._id,
       message,
       fromSeller: true,
+      createdAt: new Date().toISOString(),
     };
+
+    console.log("📤 Seller sending message:", msgObj);
 
     socket.emit("sendMessage", msgObj);
     setMessages((prev) => [...prev, msgObj]);
@@ -181,9 +246,28 @@ const SellerUserChats = () => {
   };
 
   const goBack = () => {
+    // Leave current chat room when going back
+    if (currentChatRoom.current) {
+      socket.emit("leave", currentChatRoom.current);
+      console.log(`🚪 Seller left room: ${currentChatRoom.current}`);
+      currentChatRoom.current = null;
+    }
+
     setSelectedUser(null);
     selectedUserRef.current = null;
   };
+
+  // Cleanup when component unmounts
+  useEffect(() => {
+    return () => {
+      if (currentChatRoom.current) {
+        socket.emit("leave", currentChatRoom.current);
+        console.log(
+          `🚪 Seller left room on unmount: ${currentChatRoom.current}`
+        );
+      }
+    };
+  }, []);
 
   return (
     <div className="bg-white p-4 rounded shadow h-[85vh] max-w-6xl mx-auto flex flex-col sm:flex-row gap-4">
@@ -193,8 +277,13 @@ const SellerUserChats = () => {
           selectedUser ? "hidden sm:block" : "block"
         } overflow-y-auto border-r sm:pr-4`}
       >
-        <h2 className="text-lg font-semibold mb-3 text-primary-dull">
+        <h2 className="text-lg font-semibold mb-3 text-primary-dull flex items-center gap-2">
           User Chats
+          {/* <span
+            className={`w-2 h-2 rounded-full ${
+              isConnected ? "bg-green-400" : "bg-red-400"
+            }`}
+          ></span> */}
         </h2>
         {users.length === 0 ? (
           <p className="text-gray-500 text-sm">

@@ -13,9 +13,40 @@ const UserChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [senderId, setSenderId] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
   const chatEndRef = useRef(null);
   const senderIdRef = useRef(null);
   const [hasNewMessage, setHasNewMessage] = useState(false);
+
+  // Socket connection handlers
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("🟢 User socket connected");
+      setIsConnected(true);
+      if (senderIdRef.current) {
+        socket.emit("join", senderIdRef.current);
+      }
+    };
+
+    const handleDisconnect = () => {
+      console.log("🔴 User socket disconnected");
+      setIsConnected(false);
+    };
+
+    const handleError = (error) => {
+      console.error("❌ Socket error:", error);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("error", handleError);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("error", handleError);
+    };
+  }, []);
 
   // Fetch user ID on mount
   useEffect(() => {
@@ -29,7 +60,11 @@ const UserChat = () => {
         );
         setSenderId(res.data._id);
         senderIdRef.current = res.data._id;
-        socket.emit("join", res.data._id);
+
+        // Join user's room if socket is connected
+        if (socket.connected) {
+          socket.emit("join", res.data._id);
+        }
       } catch (err) {
         console.error("❌ Failed to fetch user", err);
       }
@@ -47,25 +82,33 @@ const UserChat = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Socket listener
+  // Socket message listener
   useEffect(() => {
     const handleMessage = (data) => {
       const currentId = senderIdRef.current;
 
+      console.log("📨 User received message:", data);
+
       // Only add messages relevant to this user
       if (data.senderId === currentId || data.fromSeller) {
         setMessages((prev) => {
-          // Prevent duplicate messages
+          // Improved duplicate detection
           const isDuplicate = prev.some(
             (msg) =>
               msg.message === data.message &&
               msg.senderId === data.senderId &&
-              msg.fromSeller === data.fromSeller
+              msg.fromSeller === data.fromSeller &&
+              Math.abs(
+                new Date(msg.createdAt || new Date()) -
+                  new Date(data.createdAt || new Date())
+              ) < 2000 // 2 second window
           );
+
           if (!isDuplicate) {
             // Show red dot only for seller messages when chat is closed
             if (data.fromSeller && !open) {
               setHasNewMessage(true);
+              console.log("🔴 Setting red dot for new seller message");
             }
             return [...prev, data];
           }
@@ -87,9 +130,10 @@ const UserChat = () => {
         senderId,
         message,
         fromSeller: false,
+        createdAt: new Date().toISOString(),
       };
 
-      console.log("📤 Sending message:", msgObj);
+      console.log("📤 User sending message:", msgObj);
 
       // Send to socket
       socket.emit("sendMessage", msgObj);
@@ -130,6 +174,7 @@ const UserChat = () => {
             message: "How can I help you?",
             fromSeller: true,
             senderId: "seller",
+            createdAt: new Date().toISOString(),
           },
           ...res.data,
         ]);
@@ -140,6 +185,7 @@ const UserChat = () => {
             message: "How can I help you?",
             fromSeller: true,
             senderId: "seller",
+            createdAt: new Date().toISOString(),
           },
         ]);
       }
@@ -170,8 +216,13 @@ const UserChat = () => {
       {/* Chat Box */}
       {open && (
         <div className="fixed bottom-20 right-5 w-80 max-h-[60vh] bg-white shadow-xl border rounded-lg flex flex-col overflow-hidden z-50">
-          <div className="bg-primary text-white px-4 py-2 font-semibold">
-            Chat with Seller
+          <div className="bg-primary text-white px-4 py-2 font-semibold flex items-center justify-between">
+            <span>Chat with Seller</span>
+            {/* <span
+              className={`w-2 h-2 rounded-full ${
+                isConnected ? "bg-green-400" : "bg-red-400"
+              }`}
+            ></span> */}
           </div>
 
           <div className="flex-1 p-3 overflow-y-auto text-sm space-y-2">

@@ -39,7 +39,21 @@ const SellerLogin = () => {
 
   return (
     <>
-      <div className="min-h-screen  flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4 relative">
+        {/* Back to Home Link */}
+        <div
+          className="absolute top-4 left-4 sm:top-6 sm:left-6 cursor-pointer text-primary hover:text-primary-dull transition-colors duration-200 flex items-center gap-2 font-medium"
+          onClick={() => {
+            navigate("/");
+            window.location.reload();
+          }}
+        >
+          <span className="text-lg">←</span>
+          <span className="hidden sm:inline">Back to Home</span>
+          <span className="sm:hidden">Back</span>
+        </div>
+
+        {/* Login Form Container */}
         <div className="bg-white max-w-md w-full rounded-xl shadow-lg p-8 space-y-6 border border-gray-200">
           <div className="text-center">
             <img

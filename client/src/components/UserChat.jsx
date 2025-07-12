@@ -21,7 +21,7 @@ const UserChat = () => {
   // Socket connection handlers
   useEffect(() => {
     const handleConnect = () => {
-      console.log("🟢 User socket connected");
+      //console.log("🟢 User socket connected");
       setIsConnected(true);
       if (senderIdRef.current) {
         socket.emit("join", senderIdRef.current);
@@ -29,7 +29,7 @@ const UserChat = () => {
     };
 
     const handleDisconnect = () => {
-      console.log("🔴 User socket disconnected");
+      //console.log("🔴 User socket disconnected");
       setIsConnected(false);
     };
 
@@ -87,7 +87,7 @@ const UserChat = () => {
     const handleMessage = (data) => {
       const currentId = senderIdRef.current;
 
-      console.log("📨 User received message:", data);
+      //console.log("📨 User received message:", data);
 
       // Only add messages relevant to this user
       if (data.senderId === currentId || data.fromSeller) {
@@ -108,7 +108,7 @@ const UserChat = () => {
             // Show red dot only for seller messages when chat is closed
             if (data.fromSeller && !open) {
               setHasNewMessage(true);
-              console.log("🔴 Setting red dot for new seller message");
+              //console.log("🔴 Setting red dot for new seller message");
             }
             return [...prev, data];
           }
@@ -133,7 +133,7 @@ const UserChat = () => {
         createdAt: new Date().toISOString(),
       };
 
-      console.log("📤 User sending message:", msgObj);
+      //console.log("📤 User sending message:", msgObj);
 
       // Send to socket
       socket.emit("sendMessage", msgObj);

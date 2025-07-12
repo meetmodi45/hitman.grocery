@@ -37,7 +37,7 @@ export const sendMessage = async (req, res) => {
     });
 
     await newMsg.save();
-    console.log("💾 Message saved to DB:", newMsg);
+    //console.log("💾 Message saved to DB:", newMsg);
     res.status(201).json(newMsg);
   } catch (error) {
     console.error("Error saving message:", error);
@@ -105,7 +105,7 @@ export const markMessagesAsRead = async (req, res) => {
       { $set: { isUnreadForSeller: false } }
     );
 
-    console.log(`✅ Marked messages as read for user ${userId}`);
+    //console.log(`✅ Marked messages as read for user ${userId}`);
     res.json({ success: true });
   } catch (error) {
     console.error("Error marking messages as read", error);

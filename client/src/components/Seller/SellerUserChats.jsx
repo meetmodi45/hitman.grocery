@@ -22,7 +22,7 @@ const SellerUserChats = () => {
   // Socket connection handlers
   useEffect(() => {
     const handleConnect = () => {
-      console.log("🟢 Seller socket connected");
+      //console.log("🟢 Seller socket connected");
       setIsConnected(true);
 
       // Join seller room when connected
@@ -33,7 +33,7 @@ const SellerUserChats = () => {
     };
 
     const handleDisconnect = () => {
-      console.log("🔴 Seller socket disconnected");
+      //console.log("🔴 Seller socket disconnected");
       setIsConnected(false);
     };
 
@@ -55,7 +55,7 @@ const SellerUserChats = () => {
   // Single message handler that persists throughout component lifecycle
   useEffect(() => {
     const handleMessage = (msg) => {
-      console.log("📨 Seller received message:", msg);
+      //console.log("📨 Seller received message:", msg);
 
       const selected = selectedUserRef.current;
 
@@ -125,7 +125,7 @@ const SellerUserChats = () => {
         socket.emit("join", "seller");
         socket.emit("join", sellerUserId);
 
-        console.log("🛒 Seller joined rooms: seller, " + sellerUserId);
+        //console.log("🛒 Seller joined rooms: seller, " + sellerUserId);
       } catch (err) {
         console.error("❌ Failed to fetch seller info", err);
       }
@@ -180,14 +180,14 @@ const SellerUserChats = () => {
       // Leave previous chat room if exists
       if (currentChatRoom.current) {
         socket.emit("leave", currentChatRoom.current);
-        console.log(`🚪 Seller left room: ${currentChatRoom.current}`);
+        //console.log(`🚪 Seller left room: ${currentChatRoom.current}`);
       }
 
       // Join new chat room
       const chatRoom = `chat_${selectedUser._id}`;
       socket.emit("join", chatRoom);
       currentChatRoom.current = chatRoom;
-      console.log(`🚪 Seller joined room: ${chatRoom}`);
+      //console.log(`🚪 Seller joined room: ${chatRoom}`);
 
       const fetchMessages = async () => {
         try {
@@ -228,7 +228,7 @@ const SellerUserChats = () => {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("📤 Seller sending message:", msgObj);
+    //console.log("📤 Seller sending message:", msgObj);
 
     socket.emit("sendMessage", msgObj);
     setMessages((prev) => [...prev, msgObj]);
@@ -249,7 +249,7 @@ const SellerUserChats = () => {
     // Leave current chat room when going back
     if (currentChatRoom.current) {
       socket.emit("leave", currentChatRoom.current);
-      console.log(`🚪 Seller left room: ${currentChatRoom.current}`);
+      //console.log(`🚪 Seller left room: ${currentChatRoom.current}`);
       currentChatRoom.current = null;
     }
 
@@ -262,9 +262,9 @@ const SellerUserChats = () => {
     return () => {
       if (currentChatRoom.current) {
         socket.emit("leave", currentChatRoom.current);
-        console.log(
-          `🚪 Seller left room on unmount: ${currentChatRoom.current}`
-        );
+        // console.log(
+        //   `🚪 Seller left room on unmount: ${currentChatRoom.current}`
+        // );
       }
     };
   }, []);

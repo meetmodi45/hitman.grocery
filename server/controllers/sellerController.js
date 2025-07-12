@@ -15,13 +15,22 @@ export const loginSeller = async (req, res) => {
       expiresIn: "7d",
     });
 
+    // res.cookie("sellerToken", token, {
+    //   httpOnly: true,
+    //   sameSite: "strict",
+    //   secure: process.env.NODE_ENV === "production",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
+    // });
+
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("sellerToken", token, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction, // ✅ Must be true on Render + Vercel
+      sameSite: isProduction ? "None" : "Lax", // ✅ Allow cross-origin cookies
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/",
     });
-
     return res.status(200).json({ message: "Seller logged in successfully" });
   } else {
     return res.status(401).json({ message: "Invalid credentials" });
@@ -32,8 +41,8 @@ export const loginSeller = async (req, res) => {
 export const logoutSeller = (req, res) => {
   res.clearCookie("sellerToken", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
     path: "/",
   });
 

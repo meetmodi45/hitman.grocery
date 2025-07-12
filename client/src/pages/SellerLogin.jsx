@@ -24,7 +24,10 @@ const SellerLogin = () => {
     try {
       const res = await axios.post(
         "https://hitman-grocery-backend.onrender.com/api/seller/login",
-        form
+        form,
+        {
+          withCredentials: true,
+        }
       );
       toast.success(res.data.message || "Seller Logged In");
       setIsSeller(true);

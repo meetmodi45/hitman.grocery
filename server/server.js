@@ -21,6 +21,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import otpRoutes from "./routes/otpRoutes.js";
 import { initSocket } from "./sockets/chatSocket.js";
+import subscribeRoute from "./routes/subscribe.js";
 
 // Load .env variables
 dotenv.config();
@@ -67,6 +68,7 @@ app.use("/api/userAuth", authRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/otp", otpRoutes);
+app.use("/api/subscribe", subscribeRoute);
 
 // 404 page
 app.use((req, res) => {

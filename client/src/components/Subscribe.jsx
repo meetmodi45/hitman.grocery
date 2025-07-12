@@ -1,18 +1,21 @@
 import { useState } from "react";
 import axios from "../utils/axiosInstance";
+import toast from "react-hot-toast";
 
 const Subscribe = () => {
   const [email, setEmail] = useState("");
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/subscribe", { email });
-      setSuccess(true);
+      await axios.post(
+        "https://hitman-grocery-backend.onrender.com/api/subscribe",
+        { email }
+      );
+      toast.success("Subscribed successfully!");
       setEmail("");
     } catch (err) {
-      alert("Subscription failed.");
+      toast.error("Subscription failed.");
     }
   };
 
@@ -23,12 +26,6 @@ const Subscribe = () => {
         Subscribe to get the latest offers, new arrivals, and exclusive
         discounts
       </p>
-
-      {success && (
-        <p className="text-green-600 font-medium text-sm mb-3">
-          ✅ Subscribed successfully! Check your email.
-        </p>
-      )}
 
       <form
         onSubmit={handleSubmit}

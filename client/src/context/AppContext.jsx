@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../utils/axiosInstance"; // Make sure this points to your API base
+import axios from "../utils/axiosInstance";
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
@@ -14,7 +14,7 @@ export const AppContextProvider = ({ children }) => {
   const [productError, setProductError] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
 
-  // // login using saved cookies
+  // login using saved cookies
   useEffect(() => {
     const checkLogin = async () => {
       try {

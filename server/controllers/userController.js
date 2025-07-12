@@ -24,10 +24,12 @@ export const registerUser = async (req, res) => {
     });
     console.log(" Token:", token);
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // ✅ Only secure on prod
-      sameSite: "Lax", // ✅ Safe for localhost
+      secure: isProduction, // ✅ Must be true on Render + Vercel
+      sameSite: isProduction ? "None" : "Lax", // ✅ Allow cross-origin cookies
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
@@ -52,13 +54,16 @@ export const loginUser = async (req, res) => {
       expiresIn: "7d",
     });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // ✅ Only secure on prod
-      sameSite: "Lax", // ✅ Safe for localhost
+      secure: isProduction, // ✅ Must be true on Render + Vercel
+      sameSite: isProduction ? "None" : "Lax", // ✅ Allow cross-origin cookies
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
+
     console.log("Success");
     console.log(" Token:", token);
     res.status(200).json({ message: "User logged in successfully" });
@@ -72,8 +77,8 @@ export const loginUser = async (req, res) => {
 export const logoutUser = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
     path: "/",
   });
 

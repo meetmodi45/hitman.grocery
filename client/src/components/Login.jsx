@@ -118,6 +118,9 @@ const Login = () => {
               name: formData.name,
               email: formData.email,
               password: formData.password,
+            },
+            {
+              withCredentials: true,
             }
           );
           break;
@@ -127,6 +130,9 @@ const Login = () => {
             {
               email: formData.email,
               password: formData.password,
+            },
+            {
+              withCredentials: true,
             }
           );
           break;

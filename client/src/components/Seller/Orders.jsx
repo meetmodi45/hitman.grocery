@@ -7,9 +7,8 @@ const SellerOrders = () => {
   const [loading, setLoading] = useState(true);
 
   const statuses = [
-    "Order Placed",
-    "Packed",
-    "Shipped",
+    "Order Received",
+    "Packing",
     "Out for Delivery",
     "Delivered",
   ];

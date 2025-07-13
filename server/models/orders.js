@@ -33,8 +33,11 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    enum: ["Order Received", "Packing", "Out for Delivery", "Delivered"],
-    default: "Order Received",
+    status: {
+      type: String,
+      enum: ["Order Received", "Packing", "Out for Delivery", "Delivered"],
+      default: "Order Received",
+    },
   },
   { timestamps: true }
 );

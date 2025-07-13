@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
+import toast from "react-hot-toast";
 
 const SellerOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const statuses = [
+    "Order Placed",
+    "Packed",
+    "Shipped",
+    "Out for Delivery",
+    "Delivered",
+  ];
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -22,10 +31,27 @@ const SellerOrders = () => {
     fetchOrders();
   }, []);
 
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await axios.put(
+        `https://hitman-grocery-backend.onrender.com/api/seller/update-order-status/${orderId}`,
+        { status: newStatus },
+        { withCredentials: true }
+      );
+      toast.success("Status updated!");
+      setOrders((prev) =>
+        prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
+      );
+    } catch (err) {
+      toast.error("Update failed");
+      console.error(err);
+    }
+  };
+
   if (loading) return <p className="text-gray-600 p-4">Loading...</p>;
 
   return (
-    <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8 bg-white">
+    <div className="min-h-screen px-3 sm:px-6 lg:px-8 py-6 bg-white">
       <h1 className="text-xl sm:text-2xl font-bold text-primary-dull mb-6">
         All Orders
       </h1>
@@ -34,53 +60,63 @@ const SellerOrders = () => {
         <div className="text-gray-500 text-center mt-20">No orders yet.</div>
       ) : (
         <>
-          {/* ✅ Desktop / Tablet View */}
+          {/* ✅ Table View for md+ */}
           <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50 text-gray-600 text-left">
+            <table className="w-full text-sm text-left divide-y divide-gray-200">
+              <thead className="bg-gray-50 text-gray-700 font-semibold">
                 <tr>
-                  <th className="px-4 py-3">Order ID</th>
-                  <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3">Products</th>
-                  <th className="px-4 py-3">Total Amount</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Payment</th>
+                  <th className="px-4 py-3 w-32">Order ID</th>
+                  <th className="px-4 py-3 w-48">User</th>
+                  <th className="px-4 py-3 w-[16%]">Products</th>
+                  <th className="px-4 py-3 w-32">Amount</th>
+                  <th className="px-4 py-3 w-28">Date</th>
+                  <th className="px-4 py-3 w-28">Payment</th>
+                  <th className="px-4 py-3 w-44">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 text-gray-800">
                 {orders.map((order) => (
                   <tr key={order._id} className="hover:bg-gray-50 transition">
-                    <td className="px-4 py-2 font-mono text-gray-700">
+                    <td className="px-4 py-2 font-mono text-gray-600">
                       #{order._id.slice(-6).toUpperCase()}
                     </td>
                     <td className="px-4 py-2">
-                      <p className="font-medium text-gray-800">
-                        {order.user?.name}
-                      </p>
+                      <p className="font-medium">{order.user?.name}</p>
                       <p className="text-xs text-gray-500">
                         {order.user?.email}
                       </p>
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 whitespace-pre-wrap">
                       {order.products.map((item, i) => (
-                        <div key={i} className="mb-1">
+                        <div key={i}>
                           {item.product?.name}{" "}
-                          <span className="text-primary font-semibold">
+                          <span className="text-green-600 font-semibold">
                             x{item.quantity}
                           </span>
                         </div>
                       ))}
                     </td>
-                    <td className="px-4 py-2 font-semibold text-gray-900">
+                    <td className="px-4 py-2 font-semibold">
                       ₹{order.totalAmount}
                     </td>
-                    <td className="px-4 py-2 text-sm text-gray-600">
+                    <td className="px-4 py-2 text-sm">
                       {new Date(order.createdAt).toLocaleDateString("en-GB")}
                     </td>
+                    <td className="px-4 py-2">{order.paymentMethod}</td>
                     <td className="px-4 py-2">
-                      <span className="text-sm font-medium text-gray-700">
-                        {order.paymentMethod}
-                      </span>
+                      <select
+                        value={order.status}
+                        onChange={(e) =>
+                          handleStatusChange(order._id, e.target.value)
+                        }
+                        className="w-full border rounded px-2 py-1 text-sm"
+                      >
+                        {statuses.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                   </tr>
                 ))}
@@ -89,45 +125,57 @@ const SellerOrders = () => {
           </div>
 
           {/* ✅ Mobile View */}
-          <div className="md:hidden space-y-4">
+          <div className="md:hidden space-y-5 mt-6">
             {orders.map((order) => (
               <div
                 key={order._id}
                 className="border border-gray-200 rounded-lg p-4 shadow-sm"
               >
-                <div className="mb-2 flex justify-between text-sm font-mono text-gray-700">
+                <div className="flex justify-between text-sm font-mono text-gray-600 mb-1">
                   <span>#{order._id.slice(-6).toUpperCase()}</span>
-                  <span className="text-gray-600">
+                  <span>
                     {new Date(order.createdAt).toLocaleDateString("en-GB")}
                   </span>
                 </div>
 
-                <div className="mb-2">
-                  <p className="font-semibold text-gray-800">
-                    {order.user?.name}
-                  </p>
+                <div className="text-gray-800 mb-2">
+                  <p className="font-semibold">{order.user?.name}</p>
                   <p className="text-xs text-gray-500">{order.user?.email}</p>
                 </div>
 
                 <div className="mb-2">
-                  <p className="text-sm font-medium text-gray-500 mb-1">
-                    Products
-                  </p>
+                  <p className="text-sm font-medium text-gray-500">Products</p>
                   {order.products.map((item, i) => (
-                    <p key={i} className="text-gray-900 text-sm">
-                      • {item.product?.name}{" "}
-                      <span className="text-primary font-semibold">
+                    <p key={i} className="text-sm">
+                      {item.product?.name}{" "}
+                      <span className="text-green-600 font-semibold">
                         x{item.quantity}
                       </span>
                     </p>
                   ))}
                 </div>
 
-                <div className="flex justify-between mt-3">
-                  <p className="font-semibold text-gray-800 text-sm">
+                <div className="flex justify-between mt-3 text-sm">
+                  <p className="font-semibold text-gray-800">
                     ₹{order.totalAmount}
                   </p>
-                  <p className="text-sm text-gray-600">{order.paymentMethod}</p>
+                  <p className="text-gray-600">{order.paymentMethod}</p>
+                </div>
+
+                <div className="mt-3">
+                  <select
+                    value={order.status}
+                    onChange={(e) =>
+                      handleStatusChange(order._id, e.target.value)
+                    }
+                    className="w-full border rounded px-3 py-2 text-sm"
+                  >
+                    {statuses.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             ))}

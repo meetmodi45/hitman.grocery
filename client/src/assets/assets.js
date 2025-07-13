@@ -69,7 +69,7 @@ import vanilla_muffins_image from "./vanilla_muffins_image.png";
 import quinoa_image from "./quinoa_image.png";
 import brown_rice_image from "./brown_rice_image.png";
 import barley_image from "./barley_image.png";
-
+import snacks_image from "./snacks_image.png";
 export const assets = {
   logo,
   search_icon,
@@ -120,17 +120,24 @@ export const categories = [
     bgColor: "#F0F5DE",
   },
   {
-    text: "Instant Food",
-    path: "Instant",
-    image: maggi_image,
-    bgColor: "#E1F5EC",
-  },
-  {
     text: "Dairy Products",
     path: "Dairy",
     image: dairy_product_image,
     bgColor: "#FEE6CD",
   },
+  {
+    text: "Snacks",
+    path: "Snacks",
+    image: snacks_image,
+    bgColor: "#FFF4E2",
+  },
+  {
+    text: "Instant Food",
+    path: "Instant",
+    image: maggi_image,
+    bgColor: "#E1F5EC",
+  },
+
   {
     text: "Bakery & Breads",
     path: "Bakery",

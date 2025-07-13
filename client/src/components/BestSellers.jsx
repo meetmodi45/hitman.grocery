@@ -105,7 +105,7 @@ const BestSellers = () => {
                           className="w-4 h-4"
                         />
                       ))}
-                    <p>({product.rating})</p>
+                    <p>(0)</p>
                   </div>
                   <div className="flex items-end justify-between mt-3">
                     <p className="md:text-xl text-base font-medium text-primary">

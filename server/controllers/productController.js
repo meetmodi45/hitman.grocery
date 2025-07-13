@@ -1,4 +1,6 @@
 import Product from "../models/Product.js";
+import Order from "../models/orders.js";
+import mongoose from "mongoose";
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -15,15 +17,47 @@ export const getAllProducts = async (req, res) => {
 
 export const getBestSellers = async (req, res) => {
   try {
-    const bestSellerIds = [
-      "686597adb02253cf3ee45b19",
-      "6868df5143f2a0c3271d017e",
-      "686a2eeaf67f5611975d5b76",
-      "686a2f2af67f5611975d5b78",
-    ];
+    const topOrdered = await Order.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.product",
+          totalOrdered: { $sum: "$products.quantity" },
+        },
+      },
+      { $sort: { totalOrdered: -1 } },
+      { $limit: 4 },
+    ]);
 
-    const products = await Product.find({ _id: { $in: bestSellerIds } });
-    res.json(products);
+    let productIds = topOrdered.map((item) => item._id);
+
+    // Fallback if not enough products from orders
+    if (productIds.length < 4) {
+      const fallbackIds = [
+        "686597adb02253cf3ee45b19",
+        "6868df5143f2a0c3271d017e",
+        "686a2eeaf67f5611975d5b76",
+        "686a2f2af67f5611975d5b78",
+      ];
+
+      const additionalIds = fallbackIds.filter(
+        (id) => !productIds.includes(id)
+      );
+
+      productIds = [
+        ...productIds,
+        ...additionalIds.slice(0, 4 - productIds.length),
+      ];
+    }
+
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    // Optional: sort the products array to match productIds order
+    const sortedProducts = productIds.map((id) =>
+      products.find((p) => p._id.toString() === id.toString())
+    );
+
+    res.json(sortedProducts);
   } catch (err) {
     console.error("Error fetching best sellers:", err);
     res.status(500).json({ message: "Server error" });

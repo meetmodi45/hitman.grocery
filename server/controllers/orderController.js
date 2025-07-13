@@ -67,3 +67,41 @@ export const getAllOrdersForSeller = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 };
+
+// PUT /api/orders/:id/status
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({ success: true, message: "Status updated", order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// GET /api/orders/status/:id
+export const getOrderStatus = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).select("status");
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({ success: true, status: order.status });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

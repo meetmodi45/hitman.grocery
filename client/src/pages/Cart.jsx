@@ -179,13 +179,19 @@ const Cart = () => {
                 <div className="flex items-center gap-4 w-full">
                   <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center border border-gray-300 rounded-md overflow-hidden">
                     <img
-                      className="max-w-full h-full object-cover"
+                      className="max-w-full h-full object-cover cursor-pointer"
                       src={item.image}
                       alt={item.name}
+                      onClick={() => navigate(`/product/${item._id}`)}
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold mb-2 md:mb-4">{item.name}</p>
+                    <p
+                      className="font-semibold mb-2 md:mb-4 cursor-pointer"
+                      onClick={() => navigate(`/product/${item._id}`)}
+                    >
+                      {item.name}
+                    </p>
                     <div className="flex items-center gap-1">
                       <p className="text-sm">Qty:</p>
                       <select

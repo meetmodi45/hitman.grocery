@@ -33,7 +33,7 @@ const NotFound = () => {
         `}
       </style>
 
-      <div className="mt-12 min-h-screen flex items-center justify-center  text-[#111] px-4">
+      <div className="mt-8 min-h-screen flex items-center justify-center  text-[#111] px-4">
         <div
           className="text-center border border-gray-500 max-w-lg w-full p-8 sm:p-10 bg-white rounded-3xl relative overflow-hidden shadow-[0_10px_25px_-5px_rgba(0,0,0,0.04),0_10px_10px_-5px_rgba(0,0,0,0.01)]"
           style={{ animation: "fadeIn 0.6s ease-out both" }}

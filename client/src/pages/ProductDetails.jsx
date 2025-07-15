@@ -38,6 +38,11 @@ const ProductDetail = () => {
   }, [productId, navigate, getCartQuantityById]);
 
   const handleAddToCart = () => {
+    if (!product.inStock) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
     const currentQty = getCartQuantityById(product._id);
 
     if (currentQty === 0) {
@@ -175,13 +180,19 @@ const ProductDetail = () => {
             ))}
           </ul>
 
-          <div className="flex  mt-10 gap-4 text-base">
-            <button
-              onClick={handleAddToCart}
-              className="w-full py-3.5 cursor-pointer font-medium bg-primary hover:bg-primary-dull transition text-white rounded-sm"
-            >
-              Add to Cart
-            </button>
+          <div className="flex mt-10 gap-4 text-base">
+            {product.inStock ? (
+              <button
+                onClick={handleAddToCart}
+                className="w-full py-3.5 cursor-pointer font-medium bg-primary hover:bg-primary-dull transition text-white rounded-sm"
+              >
+                Add to Cart
+              </button>
+            ) : (
+              <div className="w-full py-3.5 text-center font-medium bg-gray-300 text-gray-600 rounded-sm cursor-not-allowed">
+                Out of Stock
+              </div>
+            )}
           </div>
         </div>
       </div>

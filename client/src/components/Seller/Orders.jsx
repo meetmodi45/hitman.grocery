@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "../../utils/axiosInstance";
+import { sellerAxios } from "../../utils/axiosInstance";
 import toast from "react-hot-toast";
 
 const SellerOrders = () => {
@@ -16,9 +16,10 @@ const SellerOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get(
+        const res = await sellerAxios.get(
           "https://hitman-grocery-backend.onrender.com/api/orders/all"
         );
+
         setOrders(res.data.orders || []);
       } catch (err) {
         console.error("Failed to fetch seller orders:", err.message);
@@ -32,18 +33,19 @@ const SellerOrders = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await axios.put(
-        `https://hitman-grocery-backend.onrender.com/api/seller/update-order-status/${orderId}`,
-        { status: newStatus },
-        { withCredentials: true }
-      );
+      await sellerAxios.put(`/seller/update-order-status/${orderId}`, {
+        status: newStatus,
+      });
       toast.success("Status updated!");
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
     } catch (err) {
       toast.error("Update failed");
-      console.error(err);
+      console.error(
+        "Error updating order status:",
+        err.response?.data || err.message
+      );
     }
   };
 

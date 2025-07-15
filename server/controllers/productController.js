@@ -26,13 +26,19 @@ export const getBestSellers = async (req, res) => {
         },
       },
       { $sort: { totalOrdered: -1 } },
-      { $limit: 4 },
+      { $limit: 10 }, // Get more in case some are out of stock
     ]);
 
     let productIds = topOrdered.map((item) => item._id);
 
-    // Fallback if not enough products from orders
-    if (productIds.length < 4) {
+    // Get only in-stock products from the top ordered list
+    let products = await Product.find({
+      _id: { $in: productIds },
+      inStock: true,
+    });
+
+    // If fewer than 4 in-stock products, fill with fallback in-stock ones
+    if (products.length < 4) {
       const fallbackIds = [
         "686597adb02253cf3ee45b19",
         "6868df5143f2a0c3271d017e",
@@ -40,24 +46,23 @@ export const getBestSellers = async (req, res) => {
         "686a2f2af67f5611975d5b78",
       ];
 
-      const additionalIds = fallbackIds.filter(
-        (id) => !productIds.includes(id)
-      );
+      const needed = 4 - products.length;
 
-      productIds = [
-        ...productIds,
-        ...additionalIds.slice(0, 4 - productIds.length),
-      ];
+      const additionalProducts = await Product.find({
+        _id: { $in: fallbackIds },
+        inStock: true,
+        _id: { $nin: products.map((p) => p._id) },
+      }).limit(needed);
+
+      products = [...products, ...additionalProducts];
     }
 
-    const products = await Product.find({ _id: { $in: productIds } });
+    // Sort products to match original top order
+    const sortedProducts = productIds
+      .map((id) => products.find((p) => p._id.toString() === id.toString()))
+      .filter(Boolean); // remove any undefined if some IDs were filtered out
 
-    // Optional: sort the products array to match productIds order
-    const sortedProducts = productIds.map((id) =>
-      products.find((p) => p._id.toString() === id.toString())
-    );
-
-    res.json(sortedProducts);
+    res.json(sortedProducts.slice(0, 4)); // Ensure only top 4
   } catch (err) {
     console.error("Error fetching best sellers:", err);
     res.status(500).json({ message: "Server error" });

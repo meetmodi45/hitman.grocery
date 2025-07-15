@@ -1,14 +1,16 @@
 import jwt from "jsonwebtoken";
 
 const authSeller = async (req, res, next) => {
-  const { sellerToken } = req.cookies;
+  const authHeader = req.headers.authorization;
 
-  if (!sellerToken) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ success: false, message: "Not Authorized" });
   }
 
+  const token = authHeader.split(" ")[1];
+
   try {
-    const tokenDecode = jwt.verify(sellerToken, process.env.JWT_SECRET);
+    const tokenDecode = jwt.verify(token, process.env.JWT_SECRET);
 
     if (tokenDecode.email === process.env.SELLER_EMAIL) {
       req.user = tokenDecode;

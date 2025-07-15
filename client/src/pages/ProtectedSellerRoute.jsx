@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import axios from "../utils/axiosInstance";
+import { sellerAxios } from "../utils/axiosInstance";
 import { useAppContext } from "../context/AppContext";
 
 const ProtectedSellerRoute = ({ children }) => {
@@ -9,11 +9,20 @@ const ProtectedSellerRoute = ({ children }) => {
 
   useEffect(() => {
     const verifySeller = async () => {
+      const token = localStorage.getItem("sellerToken");
+      if (!token) {
+        setIsSeller(false);
+        setChecking(false);
+        return;
+      }
+
       try {
-        const res = await axios.get(
+        const res = await sellerAxios.get(
           "https://hitman-grocery-backend.onrender.com/api/seller/check-auth",
           {
-            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`, // ✅ Fix here
+            },
           }
         );
 
@@ -30,7 +39,7 @@ const ProtectedSellerRoute = ({ children }) => {
     };
 
     verifySeller();
-  }, []);
+  }, [setIsSeller]);
 
   if (checking) return <div>Loading...</div>;
 

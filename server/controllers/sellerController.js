@@ -15,42 +15,22 @@ export const loginSeller = async (req, res) => {
       expiresIn: "7d",
     });
 
-    // res.cookie("sellerToken", token, {
-    //   httpOnly: true,
-    //   sameSite: "strict",
-    //   secure: process.env.NODE_ENV === "production",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    // });
-
-    const isProduction = process.env.NODE_ENV === "production";
-
-    res.cookie("sellerToken", token, {
-      httpOnly: true,
-      secure: isProduction, // ✅ Must be true on Render + Vercel
-      sameSite: isProduction ? "None" : "Lax", // ✅ Allow cross-origin cookies
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
+    return res.status(200).json({
+      message: "Seller logged in successfully",
+      token, // ✅ Send token in response body
     });
-    return res.status(200).json({ message: "Seller logged in successfully" });
   } else {
     return res.status(401).json({ message: "Invalid credentials" });
   }
 };
 
-// SELLER LOGOUT
+// SELLER LOGOUT (no need to clear cookie since no cookies used)
 export const logoutSeller = (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  res.clearCookie("sellerToken", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
-    path: "/",
-  });
-
+  // Client can just remove token from localStorage
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-// CHECK SELLER AUTH
+// CHECK SELLER AUTH (protected route - use sellerAuthMiddleware)
 export const checkSellerAuth = (req, res) => {
   res.status(200).json({ success: true });
 };

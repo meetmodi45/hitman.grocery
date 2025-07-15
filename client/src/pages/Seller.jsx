@@ -8,6 +8,7 @@ import axios from "../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { sellerAxios } from "../utils/axiosInstance";
 
 const Seller = () => {
   const [activeTab, setActiveTab] = useState("add");
@@ -94,13 +95,16 @@ const Seller = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get(
+      const response = await sellerAxios.get(
         "https://hitman-grocery-backend.onrender.com/api/seller/logout",
         {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("sellerToken")}`,
+          },
         }
       );
       if (response.status === 200) {
+        localStorage.removeItem("sellerToken");
         setIsSeller(false);
         navigate("/");
         toast.success("Logged out successfully");

@@ -29,12 +29,13 @@ const Footer = () => {
     },
     {
       name: "Payment Methods",
-      action: () => toast("Coming Soon! 🚧", { duration: 3000 }),
+      action: () => handleNavigation("/payment-methods"),
     },
     {
       name: "Track your Order",
-      action: () => toast("Coming Soon! 🚧", { duration: 3000 }),
+      action: () => handleNavigation("/myorders"),
     },
+
     {
       name: "Contact Us",
       action: () =>

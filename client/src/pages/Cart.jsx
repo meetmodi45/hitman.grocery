@@ -49,7 +49,11 @@ const Cart = () => {
             shippingAddress: selectedAddress,
             paymentMethod: "COD",
           },
-          { withCredentials: true }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
 
         localStorage.removeItem("cartItems");
@@ -83,7 +87,11 @@ const Cart = () => {
         const res = await axios.post(
           `https://hitman-grocery-backend.onrender.com/api/payment/razorpay`,
           { totalAmount: finalAmount },
-          { withCredentials: true }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
 
         const { order } = res.data;
@@ -107,11 +115,15 @@ const Cart = () => {
                   shippingAddress: selectedAddress,
                   paymentMethod: "Online",
                 },
-                { withCredentials: true }
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
               );
 
               localStorage.removeItem("cartItems");
-              // setCartItems([]);
+              setCartItems([]);
               toast.success("Payment successful & order placed!", {
                 duration: 5000,
               });

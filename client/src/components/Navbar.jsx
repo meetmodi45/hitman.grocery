@@ -22,24 +22,11 @@ const Navbar = () => {
       window.location.reload();
     }
   }, [searchQuery, navigate]);
-  const handleLogout = async () => {
-    try {
-      const response = await axios.get(
-        "https://hitman-grocery-backend.onrender.com/api/users/logout",
-        {
-          withCredentials: true,
-        }
-      );
-      if (response.status === 200) {
-        setUser(false);
-        navigate("/");
-        // window.location.reload();
-        toast.success("Logged out successfully");
-      }
-    } catch (err) {
-      console.error("Logout failed", err);
-      toast.error("Logout failed. Please try again.");
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // 🧹 Clear token
+    setUser(false); // 📴 Reset user state
+    navigate("/"); // 🏠 Redirect to home
+    toast.success("Logged out successfully");
   };
 
   const goToOrders = () => {

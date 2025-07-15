@@ -17,17 +17,22 @@ export const AppContextProvider = ({ children }) => {
   // login using saved cookies
   useEffect(() => {
     const checkLogin = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return setUser(false);
+
       try {
         const res = await axios.get(
           `https://hitman-grocery-backend.onrender.com/api/userAuth/profile`,
           {
-            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
-        setUser(true);
+        setUser(res.data); // optionally store user data
       } catch (err) {
+        localStorage.removeItem("token");
         setUser(false);
-        // console.log("User not logged in:", err.message);
       }
     };
 

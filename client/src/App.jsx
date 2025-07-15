@@ -17,6 +17,7 @@ import SellerLogin from "./pages/SellerLogin";
 import ProtectedSellerRoute from "./pages/ProtectedSellerRoute";
 import MyOrders from "./pages/MyOrders";
 import UserChat from "./components/UserChat";
+import PaymentMethods from "./pages/PaymentMethods";
 
 const App = () => {
   const { showUserLogin, showAddressModal, user, isSeller } = useAppContext();
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/payment-methods" element={<PaymentMethods />} />
           <Route path="/seller-login" element={<SellerLogin />} />
           <Route
             path="/seller"

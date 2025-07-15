@@ -10,9 +10,8 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    if (existingUser)
       return res.status(400).json({ message: "User already exists" });
-    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -22,19 +21,12 @@ export const registerUser = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    console.log(" Token:", token);
 
-    const isProduction = process.env.NODE_ENV === "production";
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: isProduction, // ✅ Must be true on Render + Vercel
-      sameSite: isProduction ? "None" : "Lax", // ✅ Allow cross-origin cookies
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
+    res.status(201).json({
+      message: "User registered successfully",
+      token,
+      user: { id: user._id, name: user.name, email: user.email },
     });
-
-    res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -45,7 +37,7 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid Email" });
+    if (!user) return res.status(400).json({ message: "Invalid email" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
@@ -54,43 +46,25 @@ export const loginUser = async (req, res) => {
       expiresIn: "7d",
     });
 
-    const isProduction = process.env.NODE_ENV === "production";
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: isProduction, // ✅ Must be true on Render + Vercel
-      sameSite: isProduction ? "None" : "Lax", // ✅ Allow cross-origin cookies
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
+    res.status(200).json({
+      message: "User logged in successfully",
+      token,
+      user: { id: user._id, name: user.name, email: user.email },
     });
-
-    console.log("Success");
-    console.log(" Token:", token);
-    res.status(200).json({ message: "User logged in successfully" });
   } catch (err) {
-    console.log(err);
-    console.log("error");
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
 export const logoutUser = (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
-    path: "/",
-  });
-
-  res.status(200).json({ message: "Logged out successfully" });
+  // With token auth, logout is handled on the frontend by clearing token from storage
+  res.status(200).json({ message: "Logged out (token removed on frontend)" });
 };
 
 export const getUserProfile = (req, res) => {
   res.status(200).json(req.user);
 };
 
-// Reset password
 export const resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;

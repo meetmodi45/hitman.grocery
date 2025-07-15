@@ -96,7 +96,6 @@ const Login = () => {
       return toast.error("Please verify your email via OTP first");
     }
 
-    // Validation for forgot password
     if (currentView === "forgot") {
       if (formData.newPassword !== formData.confirmPassword) {
         return toast.error("Passwords don't match");
@@ -118,24 +117,20 @@ const Login = () => {
               name: formData.name,
               email: formData.email,
               password: formData.password,
-            },
-            {
-              withCredentials: true,
             }
           );
           break;
+
         case "login":
           res = await axios.post(
             "https://hitman-grocery-backend.onrender.com/api/users/login",
             {
               email: formData.email,
               password: formData.password,
-            },
-            {
-              withCredentials: true,
             }
           );
           break;
+
         case "forgot":
           res = await axios.post(
             "https://hitman-grocery-backend.onrender.com/api/users/reset-password",
@@ -151,6 +146,12 @@ const Login = () => {
       }
 
       toast.success(res.data.message);
+
+      // ✅ Store token from backend
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
       setUser(true);
       setShowUserLogin(false);
       resetForm();

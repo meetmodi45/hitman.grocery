@@ -19,7 +19,9 @@ const MyOrders = () => {
         const res = await axios.get(
           `https://hitman-grocery-backend.onrender.com/api/orders/my`,
           {
-            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
         );
         setOrders(res.data.orders || []);

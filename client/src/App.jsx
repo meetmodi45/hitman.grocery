@@ -18,7 +18,7 @@ import ProtectedSellerRoute from "./pages/ProtectedSellerRoute";
 import MyOrders from "./pages/MyOrders";
 import UserChat from "./components/UserChat";
 import PaymentMethods from "./pages/PaymentMethods";
-
+import NotFound from "./pages/NotFound";
 const App = () => {
   const { showUserLogin, showAddressModal, user, isSeller } = useAppContext();
   const isSellerPath = useLocation().pathname.includes("seller");
@@ -53,6 +53,7 @@ const App = () => {
             }
           />
           <Route path="/myorders" element={<MyOrders />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         {user && <UserChat />}
         <Toaster

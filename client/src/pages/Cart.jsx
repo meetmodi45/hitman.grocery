@@ -58,7 +58,7 @@ const Cart = () => {
 
         localStorage.removeItem("cartItems");
         // setCartItems([]);
-        toast.success("Payment successful & order placed!", {
+        toast.success("Order placed!", {
           duration: 5000,
         });
 

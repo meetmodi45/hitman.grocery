@@ -123,15 +123,17 @@ const Cart = () => {
               );
 
               localStorage.removeItem("cartItems");
-              setCartItems([]);
+              //setCartItems([]);
               toast.success("Payment successful & order placed!", {
                 duration: 5000,
               });
 
               setTimeout(() => navigate("/myorders"), 2000);
             } catch (err) {
+              //toast.success("Payment successful!");
               toast.error("Payment succeeded but order failed!");
               console.error("Final Order Error:", err);
+              //setTimeout(() => navigate("/myorders"), 2000);
             }
           },
           prefill: {
